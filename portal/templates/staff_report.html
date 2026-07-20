@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audit Report — SMSquare Staff</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f8fafc; margin: 0; color: #1c2b3a; }
+    header { background: #12355b; color: #fff; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+    header a { color: #cbd5e1; text-decoration: none; font-size: 13px; }
+    main { padding: 20px 24px; }
+    form.filters { display: flex; gap: 12px; align-items: end; margin-bottom: 16px; flex-wrap: wrap; }
+    form.filters label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
+    form.filters input, form.filters select { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
+    form.filters button { padding: 7px 14px; background: #0e9494; color: #fff; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    th, td { text-align: left; padding: 8px 10px; font-size: 12.5px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    th { background: #f1f5f9; color: #334155; font-weight: 600; position: sticky; top: 0; }
+    tr:last-child td { border-bottom: none; }
+    .action { font-weight: 600; }
+    .action-login_success, .action-login_success_agreement { color: #1a7f37; }
+    .action-login_unknown_mobile, .action-agreement_login_failed { color: #b91c1c; }
+    .action-qr_generated { color: #b45309; }
+    .action-statement_downloaded, .action-installment_receipt_downloaded, .action-charge_receipt_downloaded, .action-receipt_downloaded { color: #0e5c9e; }
+    .muted { color: #94a3b8; }
+    .pager { display: flex; gap: 12px; margin-top: 16px; align-items: center; font-size: 13px; }
+    .pager a { color: #0e9494; text-decoration: none; }
+    .count { color: #64748b; font-size: 13px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Audit Report</strong>
+    <a href="/staff/logout">Logout</a>
+  </header>
+  <main>
+    <form class="filters" method="get">
+      <div>
+        <label for="action">Action</label>
+        <select id="action" name="action">
+          <option value="">All</option>
+          {% for a in actions %}
+            <option value="{{ a }}" {{ 'selected' if action_filter == a }}>{{ a }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="mobile">Mobile search (last digits)</label>
+        <input id="mobile" name="mobile" type="text" placeholder="e.g. 3895" value="{{ mobile_filter }}">
+      </div>
+      <button type="submit">Filter</button>
+    </form>
+
+    <p class="count">{{ total }} event{{ 's' if total != 1 }} · page {{ page }}</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date / Time (IST)</th>
+          <th>Action</th>
+          <th>Mobile</th>
+          <th>Detail (loan no., amount, etc.)</th>
+          <th>IP</th>
+          <th>Location</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.created_at_ist }}</td>
+          <td class="action action-{{ row.action }}">{{ row.action }}</td>
+          <td>{{ row.mobile or '—' }}</td>
+          <td>{{ row.detail or '—' }}</td>
+          <td>{{ row.ip or '—' }}</td>
+          <td>
+            {% if row.maps_url %}
+              <a href="{{ row.maps_url }}" target="_blank" rel="noopener">{{ row.location or 'Map' }}</a>
+            {% else %}
+              {{ row.location or '—' }}
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="muted">No events match this filter.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="pager">
+      {% if has_prev %}<a href="?page={{ page - 1 }}&action={{ action_filter }}&mobile={{ mobile_filter }}">&larr; Prev</a>{% endif %}
+      <span class="muted">Page {{ page }}</span>
+      {% if has_next %}<a href="?page={{ page + 1 }}&action={{ action_filter }}&mobile={{ mobile_filter }}">Next &rarr;</a>{% endif %}
+    </div>
+  </main>
+</body>
+</html>

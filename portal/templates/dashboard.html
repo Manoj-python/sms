@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+{% set display_name = customer_name or sess.customer_name %}
+<div class="profile-header">
+  {% if customer and customer.photo_url %}
+    <img class="profile-pic" src="{{ customer.photo_url }}" alt="">
+  {% endif %}
+  <div>
+    <h1>{{ t('welcome') }}{% if display_name %}, {{ display_name.title() }}{% endif %}</h1>
+    <p class="muted">{{ sess.mobile_mask }}</p>
+    <a class="btn-link" href="/profile">{{ t('view_profile') }}</a>
+  </div>
+</div>
+
+{% if lms_down %}
+  <div class="alert alert-warn">{{ t('err_lms_down') }}</div>
+{% elif not rows %}
+  <div class="card"><p>{{ t('no_loans') }}</p></div>
+{% else %}
+  <h2>{{ t('your_loans') }}</h2>
+  {% for row in rows %}
+  {% set loan = row.loan %}
+  {% set lcc = row.lcc %}
+  {% set agr = row.agr %}
+  {# GetLoanByMobileNumber's own EMI/overdue/status/next-due fields are
+     unreliable (confirmed live) — LCC (GetLccDetailsByAgreementNo) is the
+     accurate source for overdue/status. LCC's CurrentMonthTBC is unreliable
+     for EMI though (confirmed live: zero for a loan with a real EMI), and
+     its InstallmentDueDate is the CURRENT (often overdue) installment's
+     date, not the genuinely upcoming one — GetLoanAgreementNoAsync's
+     regular_emi_amount/NextEMIDueDate (agr) is used for both instead. #}
+  {% set emi = agr.regular_emi_amount if agr else (lcc.current_month_tbc if lcc else loan.emi_amount) %}
+  {% set is_overdue = lcc.is_overdue if lcc else (loan.overdue_amount > 0) %}
+  {% set overdue = (lcc.total_dues if lcc else loan.overdue_amount) if is_overdue else 0.0 %}
+  {% set next_due = (agr.next_due_date if agr else loan.next_due_date) %}
+  {# Confirmed live (2026-07-17): LCC's InstallmentDueDate is explicitly
+     null once a loan is past its full EMI tenure with no more scheduled
+     installments left (even if dues remain outstanding) — a genuine
+     "expired" signal that agr's NextPaymentDate doesn't give (it's just the
+     last-scheduled date, stale either way). Only treated as authoritative
+     when blank; a non-blank LCC date is still not trusted as "next due" per
+     the existing note above (may be the current/overdue installment). #}
+  {% set is_expired = lcc and not lcc.installment_due_date %}
+  {% set status_text = (lcc.status if lcc else loan.status) %}
+  <div class="card loan-card {{ 'overdue' if is_overdue }}">
+    <div class="loan-head">
+      <strong>{{ loan.product_type or t('product') }}</strong>
+      {% if is_overdue %}
+        <span class="badge badge-overdue">{{ t('overdue') }}{% if loan.dpd %} · {{ loan.dpd }} DPD{% endif %}</span>
+      {% else %}
+        <span class="badge badge-ok">{{ status_text or 'Active' }}</span>
+      {% endif %}
+    </div>
+    <p class="muted">{{ loan.agreement_no }}</p>
+    <div class="kv">
+      <div><span class="k">{{ t('emi') }}</span><span class="v">₹{{ '%.2f'|format(emi) }}</span></div>
+      <div><span class="k">{{ t('next_due') }}</span><span class="v">{{ t('expired') if is_expired else next_due|dmy }}</span></div>
+      <div><span class="k">{{ t('overdue') }}</span><span class="v">₹{{ '%.2f'|format(overdue) }}</span></div>
+      <div><span class="k">{{ t('status') }}</span><span class="v">{{ status_text or ('Overdue' if is_overdue else 'Active') }}</span></div>
+    </div>
+    <a class="btn btn-primary" href="/loan/{{ loan.finance_id }}/pay">{{ t('view_pay') }}</a>
+  </div>
+  {% endfor %}
+{% endif %}
+{% endblock %}

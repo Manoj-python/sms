@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff Login — SMSquare</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .box { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 32px; width: 320px; }
+    h1 { font-size: 18px; margin: 0 0 20px; color: #12355b; }
+    label { display: block; font-size: 13px; color: #64748b; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    button { width: 100%; margin-top: 20px; padding: 10px; background: #12355b; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    .error { color: #b91c1c; font-size: 13px; margin-top: 12px; }
+    .hint { color: #94a3b8; font-size: 12px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <form class="box" method="post" action="/staff/login">
+    <h1>Staff Login</h1>
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" autocomplete="username" required autofocus>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button type="submit">Sign in</button>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    {% if expired %}<p class="error">Session expired. Please sign in again.</p>{% endif %}
+    <p class="hint">Internal use only. Accounts are provisioned by an operator.</p>
+  </form>
+</body>
+</html>

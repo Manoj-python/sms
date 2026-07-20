@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h1>{{ t('alt_login') }}</h1>
+  <div id="login-box">
+    <form hx-post="/login/agreement" hx-target="#login-box" hx-swap="innerHTML">
+      <label for="agreement_no">{{ t('agreement_no') }}</label>
+      <input type="text" id="agreement_no" name="agreement_no" style="text-transform:uppercase"
+             placeholder="LNTSPAR-240300005" required>
+      <label for="mobile">{{ t('mobile_number') }}</label>
+      <input type="tel" id="mobile" name="mobile" inputmode="numeric" autocomplete="tel"
+             maxlength="10" pattern="[6-9][0-9]{9}" placeholder="9XXXXXXXXX" required>
+      <label for="dob">{{ t('dob') }}</label>
+      <input type="text" id="dob" name="dob" inputmode="numeric" autocomplete="bday"
+             placeholder="DD/MM/YYYY" pattern="\d{2}/\d{2}/\d{4}"
+             title="{{ t('dob') }}: DD/MM/YYYY" maxlength="10" required>
+      <button class="btn btn-primary" type="submit">{{ t('continue') }}</button>
+    </form>
+  </div>
+  <p style="margin-top:16px">
+    <a class="btn-link" href="/login">{{ t('mobile_login') }}</a>
+  </p>
+</div>
+{% endblock %}

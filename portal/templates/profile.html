@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="btn-link" href="/dashboard">← {{ t('back_dashboard') }}</a>
+
+<div class="card">
+  <div class="profile-header">
+    {% if customer and customer.photo_url %}
+      <img class="profile-pic profile-pic-lg" src="{{ customer.photo_url }}" alt="">
+    {% endif %}
+    <h1>{{ t('profile') }}{% if customer and customer.customer_name %}: {{ customer.customer_name.title() }}{% endif %}</h1>
+  </div>
+
+  {% if customer %}
+  <div class="kv">
+    <div><span class="k">{{ t('dob') }}</span><span class="v">{{ customer.dob|dmy }}</span></div>
+    <div><span class="k">{{ t('father_name') }}</span><span class="v">{{ customer.father_name.title() if customer.father_name else '—' }}</span></div>
+    <div><span class="k">{{ t('aadhaar') }}</span><span class="v">{{ customer.masked_aadhaar or '—' }}</span></div>
+  </div>
+  <div style="margin-top:14px">
+    <span class="k">{{ t('address') }}</span>
+    <p>{{ customer.full_address or '—' }}</p>
+  </div>
+  {% else %}
+  <p class="muted">{{ t('err_lms_down') }}</p>
+  {% endif %}
+</div>
+{% endblock %}

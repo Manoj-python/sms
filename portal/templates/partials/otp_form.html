@@ -1,0 +1,31 @@
+{% if error_key %}<div class="alert alert-error">{{ t(error_key) }}</div>{% endif %}
+<p>{{ t('enter_otp') }} <strong>{{ mobile_mask }}</strong></p>
+<form hx-post="/login/verify-otp" hx-target="#login-box" hx-swap="innerHTML">
+  <input type="hidden" name="mobile" value="{{ mobile }}">
+  <input type="hidden" name="flow" value="{{ flow }}">
+  <input type="text" class="otp-input" name="otp" inputmode="numeric" autocomplete="one-time-code"
+         maxlength="6" pattern="[0-9]{6}" placeholder="••••••" required autofocus>
+  <button class="btn btn-primary" type="submit">{{ t('verify_login') }}</button>
+</form>
+<form hx-post="/login/resend-otp" hx-target="#login-box" hx-swap="innerHTML" style="margin-top:8px">
+  <input type="hidden" name="mobile" value="{{ mobile }}">
+  <input type="hidden" name="flow" value="{{ flow }}">
+  <button class="btn-link" type="submit" id="resend-btn" disabled>
+    {{ t('resend_otp') }} (<span id="resend-timer">30</span>s)
+  </button>
+</form>
+<script>
+  (function () {
+    var left = 30,
+        btn = document.getElementById('resend-btn'),
+        span = document.getElementById('resend-timer');
+    var timer = setInterval(function () {
+      left -= 1;
+      if (left <= 0) {
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.textContent = '{{ t("resend_otp") }}';
+      } else { span.textContent = left; }
+    }, 1000);
+  })();
+</script>

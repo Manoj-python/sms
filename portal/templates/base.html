@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ t('brand') }}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/htmx.min.js" defer></script>
+  <script src="/static/js/app.js" defer></script>
+</head>
+<body hx-indicator="#global-loading">
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/dashboard">
+      <img class="brand-logo" src="/static/img/logo.jpeg" alt="{{ settings.legal_name }}">
+      <span class="brand-text">{{ t('brand') }}<small>{{ t('tagline') }}</small></span>
+    </a>
+    <nav class="topnav">
+      <span class="lang-toggle">
+        <a href="/lang/en" class="{{ 'active' if lang == 'en' }}">EN</a>
+        <a href="/lang/te" class="{{ 'active' if lang == 'te' }}">తె</a>
+        <a href="/lang/hi" class="{{ 'active' if lang == 'hi' }}">हिं</a>
+        <a href="/lang/kn" class="{{ 'active' if lang == 'kn' }}">ಕನ್ನಡ</a>
+      </span>
+      {% if sess is defined and sess %}
+        <span class="user-chip" title="{{ t('welcome') }}">{{ sess.mobile_mask }}</span>
+        <a class="btn btn-ghost" href="/logout">{{ t('logout') }}</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+{# Slow-network feedback: hx-indicator on <body> makes htmx show this for
+   EVERY request on the page (no per-form wiring) — matters on 2G/3G where a
+   tap can take a few seconds with nothing else visibly happening. #}
+<div id="global-loading" class="htmx-indicator global-loading">{{ t('loading') }}</div>
+
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p class="legal-name">{{ settings.legal_name }}</p>
+    <p class="company-address">{{ settings.company_address }}</p>
+    <p><strong>{{ t('helpline') }}:</strong>
+       <a href="tel:{{ settings.helpline_number }}">{{ settings.helpline_number }}</a>
+       · <a class="whatsapp-link" href="https://wa.me/91{{ settings.helpline_number }}" target="_blank" rel="noopener">
+         <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.031 0C5.462 0 .149 5.313.149 11.881c0 2.094.545 4.14 1.582 5.945L.058 24l6.32-1.658a11.847 11.847 0 005.653 1.44h.005c6.568 0 11.881-5.313 11.881-11.881C23.917 5.334 18.604.021 12.036.021l-.005-.021zm6.951 18.831a9.821 9.821 0 01-6.951 2.876h-.005a9.83 9.83 0 01-5.005-1.371l-.359-.213-3.723.977.994-3.63-.234-.373a9.803 9.803 0 01-1.503-5.216c0-5.42 4.412-9.832 9.837-9.832 2.627 0 5.096 1.024 6.955 2.884a9.777 9.777 0 012.881 6.953c0 5.421-4.412 9.833-9.833 9.833z"/></svg>
+         WhatsApp
+       </a></p>
+    <p><strong>{{ t('grievance') }}:</strong> {{ settings.grievance_officer }}
+       · <a href="mailto:{{ settings.grievance_email }}">{{ settings.grievance_email }}</a></p>
+    <p><a href="{{ settings.ombudsman_url }}" target="_blank" rel="noopener">{{ t('ombudsman') }}</a></p>
+    <p class="fpc">{{ t('fpc') }}</p>
+  </div>
+</footer>
+</body>
+</html>

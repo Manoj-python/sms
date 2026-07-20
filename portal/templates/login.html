@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h1>{{ t('login_title') }}</h1>
+  {% if expired %}<div class="alert alert-warn">{{ t('session_expired') }}</div>{% endif %}
+  <div id="login-box">
+    <form hx-post="/login/send-otp" hx-target="#login-box" hx-swap="innerHTML">
+      <label for="mobile">{{ t('mobile_number') }}</label>
+      <input type="tel" id="mobile" name="mobile" inputmode="numeric" autocomplete="tel"
+             maxlength="10" pattern="[6-9][0-9]{9}" placeholder="9XXXXXXXXX" required>
+      <button class="btn btn-primary" type="submit">{{ t('send_otp') }}</button>
+    </form>
+  </div>
+  <p style="margin-top:16px">
+    <a class="btn-link" href="/login/agreement">{{ t('alt_login') }}</a>
+  </p>
+</div>
+{% endblock %}

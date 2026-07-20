@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="alert alert-error">{{ t(error_key) }}</div>
+  <a class="btn btn-primary" href="/dashboard">{{ t('back_dashboard') }}</a>
+</div>
+{% endblock %}
