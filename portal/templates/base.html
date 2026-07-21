@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#12355b">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="icon" href="/static/img/icon-192.png">
+  <link rel="apple-touch-icon" href="/static/img/icon-192.png">
   <title>{{ t('brand') }}</title>
   <link rel="stylesheet" href="/static/css/style.css">
   <script src="/static/js/htmx.min.js" defer></script>
@@ -34,6 +38,12 @@
    EVERY request on the page (no per-form wiring) — matters on 2G/3G where a
    tap can take a few seconds with nothing else visibly happening. #}
 <div id="global-loading" class="htmx-indicator global-loading">{{ t('loading') }}</div>
+
+<div id="install-banner" class="install-banner">
+  <p>{{ t('install_app_prompt') }}</p>
+  <button type="button" id="install-banner-accept" class="btn btn-primary">{{ t('install') }}</button>
+  <button type="button" id="install-banner-dismiss" class="btn btn-ghost">{{ t('not_now') }}</button>
+</div>
 
 <main class="container">
   {% block content %}{% endblock %}

@@ -154,6 +154,14 @@ STRINGS: dict[str, dict[str, str]] = {
     "pay_part": {
         "en": "Any other payment", "te": "ఇతర చెల్లింపు", "hi": "कोई अन्य भुगतान", "kn": "ಬೇರೆ ಯಾವುದೇ ಪಾವತಿ",
     },
+    "pay_part_zero_due": {
+        "en": "Advance EMI or Foreclosure Amount", "te": "అడ్వాన్స్ EMI లేదా ఫోర్‌క్లోజర్ మొత్తం",
+        "hi": "एडवांस EMI या फोरक्लोज़र राशि", "kn": "ಅಡ್ವಾನ್ಸ್ EMI ಅಥವಾ ಫೋರ್‌ಕ್ಲೋಶರ್ ಮೊತ್ತ",
+    },
+    "enter_payment_amount": {
+        "en": "Please enter the amount you want to pay", "te": "మీరు చెల్లించాలనుకుంటున్న మొత్తాన్ని నమోదు చేయండి",
+        "hi": "कृपया वह राशि दर्ज करें जो आप भुगतान करना चाहते हैं", "kn": "ದಯವಿಟ್ಟು ನೀವು ಪಾವತಿಸಲು ಬಯಸುವ ಮೊತ್ತವನ್ನು ನಮೂದಿಸಿ",
+    },
     "show_qr": {
         "en": "Show UPI QR code", "te": "UPI QR కోడ్ చూపించండి",
         "hi": "UPI QR कोड दिखाएं", "kn": "UPI QR ಕೋಡ್ ತೋರಿಸಿ",
@@ -305,6 +313,118 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "You do not have access to this loan.", "te": "ఈ రుణానికి మీకు యాక్సెస్ లేదు.",
         "hi": "आपको इस ऋण तक पहुंच नहीं है।", "kn": "ಈ ಸಾಲಕ್ಕೆ ನಿಮಗೆ ಪ್ರವೇಶವಿಲ್ಲ.",
     },
+    "view_statement": {
+        "en": "View statement", "te": "స్టేట్‌మెంట్ చూడండి",
+        "hi": "स्टेटमेंट देखें", "kn": "ಸ್ಟೇಟ್‌ಮೆಂಟ್ ನೋಡಿ",
+    },
+    "view_foreclosure_statement": {
+        "en": "View foreclosure statement", "te": "ఫోర్‌క్లోజర్ స్టేట్‌మెంట్ చూడండి",
+        "hi": "फोरक्लोज़र स्टेटमेंट देखें", "kn": "ಫೋರ್‌ಕ್ಲೋಶರ್ ಸ್ಟೇಟ್‌ಮೆಂಟ್ ನೋಡಿ",
+    },
+    "view_receipt": {
+        "en": "View receipt", "te": "రసీదు చూడండి",
+        "hi": "रसीद देखें", "kn": "ರಸೀದಿ ನೋಡಿ",
+    },
+    "download_pdf": {"en": "Download PDF", "te": "PDF డౌన్‌లోడ్", "hi": "PDF डाउनलोड करें", "kn": "PDF ಡೌನ್‌ಲೋಡ್"},
+    "statement_title": {
+        "en": "Statement of Account", "te": "ఖాతా స్టేట్‌మెంట్",
+        "hi": "खाता विवरण", "kn": "ಖಾತೆ ಹೇಳಿಕೆ",
+    },
+    "foreclosure_title": {
+        "en": "Foreclosure Statement", "te": "ఫోర్‌క్లోజర్ స్టేట్‌మెంట్",
+        "hi": "फोरक्लोज़र स्टेटमेंट", "kn": "ಫೋರ್‌ಕ್ಲೋಶರ್ ಸ್ಟೇಟ್‌ಮೆಂಟ್",
+    },
+    "payment_receipt_title": {
+        "en": "Payment Receipt", "te": "చెల్లింపు రసీదు",
+        "hi": "भुगतान रसीद", "kn": "ಪಾವತಿ ರಸೀದಿ",
+    },
+    "charges_title": {
+        "en": "Charges Receipt", "te": "ఛార్జీల రసీదు",
+        "hi": "शुल्क रसीद", "kn": "ಶುಲ್ಕ ರಸೀದಿ",
+    },
+    "borrower_details": {
+        "en": "Borrower Details", "te": "రుణగ్రహీత వివరాలు",
+        "hi": "उधारकर्ता विवरण", "kn": "ಸಾಲಗಾರರ ವಿವರಗಳು",
+    },
+    "repayment_schedule": {
+        "en": "Repayment Schedule", "te": "చెల్లింపు షెడ్యూల్",
+        "hi": "पुनर्भुगतान अनुसूची", "kn": "ಮರುಪಾವತಿ ವೇಳಾಪಟ್ಟಿ",
+    },
+    "guarantors": {"en": "Guarantor(s)", "te": "పూచీకత్తుదారు(లు)", "hi": "गारंटर", "kn": "ಖಾತರಿದಾರರು"},
+    "relation": {"en": "Relation", "te": "సంబంధం", "hi": "संबंध", "kn": "ಸಂಬಂಧ"},
+    "mobile_no": {"en": "Mobile No.", "te": "మొబైల్ నంబర్", "hi": "मोबाइल नंबर", "kn": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ"},
+    "col_due_date": {"en": "Due Date", "te": "గడువు తేదీ", "hi": "नियत तारीख", "kn": "ಬಾಕಿ ದಿನಾಂಕ"},
+    "col_paid": {"en": "Paid", "te": "చెల్లించినది", "hi": "भुगतान किया गया", "kn": "ಪಾವತಿಸಲಾಗಿದೆ"},
+    "col_last_paid": {
+        "en": "Last Paid Date", "te": "చివరిగా చెల్లించిన తేదీ",
+        "hi": "अंतिम भुगतान तिथि", "kn": "ಕೊನೆಯ ಪಾವತಿ ದಿನಾಂಕ",
+    },
+    "col_lpi_due": {"en": "LPI Due", "te": "LPI బకాయి", "hi": "LPI बकाया", "kn": "LPI ಬಾಕಿ"},
+    "foreclosure_breakup": {
+        "en": "Foreclosure Break-up", "te": "ఫోర్‌క్లోజర్ విభజన",
+        "hi": "फोरक्लोज़र ब्यौरा", "kn": "ಫೋರ್‌ಕ್ಲೋಶರ್ ವಿವರ",
+    },
+    "total_receivables": {
+        "en": "Total Receivables", "te": "మొత్తం రావలసినది",
+        "hi": "कुल प्राप्य राशि", "kn": "ಒಟ್ಟು ಸ್ವೀಕರಿಸಬೇಕಾದ ಮೊತ್ತ",
+    },
+    "valid_until": {"en": "Valid Until", "te": "వరకు చెల్లుబాటు", "hi": "तक मान्य", "kn": "ವರೆಗೆ ಮಾನ್ಯ"},
+    "foreclosure_validity_notice": {
+        "en": "This foreclosure amount is valid only until the date above. If not settled within "
+              "this period, a fresh statement must be requested.",
+        "te": "ఈ ఫోర్‌క్లోజర్ మొత్తం పైన ఉన్న తేదీ వరకు మాత్రమే చెల్లుతుంది. ఈ వ్యవధిలో చెల్లించకపోతే, "
+              "కొత్త స్టేట్‌మెంట్ కోసం అభ్యర్థించాలి.",
+        "hi": "यह फोरक्लोज़र राशि केवल ऊपर दी गई तिथि तक ही मान्य है। इस अवधि में भुगतान न करने पर, "
+              "नया स्टेटमेंट अनुरोध करना होगा।",
+        "kn": "ಈ ಫೋರ್‌ಕ್ಲೋಶರ್ ಮೊತ್ತವು ಮೇಲಿನ ದಿನಾಂಕದವರೆಗೆ ಮಾತ್ರ ಮಾನ್ಯವಾಗಿರುತ್ತದೆ. ಈ ಅವಧಿಯೊಳಗೆ "
+              "ಪಾವತಿಸದಿದ್ದರೆ, ಹೊಸ ಸ್ಟೇಟ್‌ಮೆಂಟ್ ಕೋರಬೇಕು.",
+    },
+    "fc_charges": {"en": "Fore-Closure Charges", "te": "ఫోర్-క్లోజర్ ఛార్జీలు", "hi": "फोर-क्लोज़र शुल्क", "kn": "ಫೋರ್-ಕ್ಲೋಶರ್ ಶುಲ್ಕ"},
+    "future_principal": {
+        "en": "Future Principal", "te": "భవిష్యత్ అసలు",
+        "hi": "भविष्य की मूल राशि", "kn": "ಭವಿಷ್ಯದ ಅಸಲು",
+    },
+    "broken_interest": {
+        "en": "Broken Period Interest", "te": "బ్రోకెన్ పీరియడ్ వడ్డీ",
+        "hi": "ब्रोकन पीरियड ब्याज", "kn": "ಬ್ರೋಕನ್ ಪಿರಿಯಡ್ ಬಡ್ಡಿ",
+    },
+    "handloan": {"en": "Handloan", "te": "హ్యాండ్‌లోన్", "hi": "हैंडलोन", "kn": "ಹ್ಯಾಂಡ್‌ಲೋನ್"},
+    "insurance": {"en": "Insurance", "te": "బీమా", "hi": "बीमा", "kn": "ವಿಮೆ"},
+    "receipt_no": {"en": "Receipt No.", "te": "రసీదు నంబర్", "hi": "रसीद संख्या", "kn": "ರಸೀದಿ ಸಂಖ್ಯೆ"},
+    "agreement_no_short": {"en": "Agreement No.", "te": "అగ్రిమెంట్ నంబర్", "hi": "एग्रीमेंट नंबर", "kn": "ಒಪ್ಪಂದ ಸಂಖ್ಯೆ"},
+    "discount": {"en": "Discount", "te": "డిస్కౌంట్", "hi": "छूट", "kn": "ರಿಯಾಯಿತಿ"},
+    "utr_ref": {"en": "UTR / Payment Ref", "te": "UTR / చెల్లింపు రిఫరెన్స్", "hi": "UTR / भुगतान संदर्भ", "kn": "UTR / ಪಾವತಿ ಉಲ್ಲೇಖ"},
+    "payment_mode": {"en": "Payment Mode", "te": "చెల్లింపు విధానం", "hi": "भुगतान का तरीका", "kn": "ಪಾವತಿ ವಿಧಾನ"},
+    "allocation_breakup": {
+        "en": "Allocation Break-up", "te": "కేటాయింపు విభజన",
+        "hi": "आवंटन ब्यौरा", "kn": "ಹಂಚಿಕೆ ವಿವರ",
+    },
+    "principal_emi": {
+        "en": "EMI / Principal amount", "te": "EMI / అసలు మొత్తం",
+        "hi": "EMI / मूल राशि", "kn": "EMI / ಅಸಲು ಮೊತ್ತ",
+    },
+    "total_received": {"en": "Total Received", "te": "మొత్తం అందుకున్నది", "hi": "कुल प्राप्त राशि", "kn": "ಒಟ್ಟು ಸ್ವೀಕರಿಸಿದ ಮೊತ್ತ"},
+    "description": {"en": "Description", "te": "వివరణ", "hi": "विवरण", "kn": "ವಿವರಣೆ"},
+    "bounce_charges": {"en": "Bounce Charges", "te": "బౌన్స్ ఛార్జీలు", "hi": "बाउंस शुल्क", "kn": "ಬೌನ್ಸ್ ಶುಲ್ಕ"},
+    "other_charges": {"en": "Other Charges", "te": "ఇతర ఛార్జీలు", "hi": "अन्य शुल्क", "kn": "ಇತರ ಶುಲ್ಕ"},
+    "no_charges_found": {
+        "en": "No charges found for this date.", "te": "ఈ తేదీకి ఛార్జీలు కనుగొనబడలేదు.",
+        "hi": "इस तिथि के लिए कोई शुल्क नहीं मिला।", "kn": "ಈ ದಿನಾಂಕಕ್ಕೆ ಯಾವುದೇ ಶುಲ್ಕಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+    },
+    "system_generated_note": {
+        "en": "This is a system-generated document and does not require a signature.",
+        "te": "ఇది సిస్టమ్ ద్వారా రూపొందించిన పత్రం, సంతకం అవసరం లేదు.",
+        "hi": "यह एक सिस्टम-जनित दस्तावेज़ है और इसके लिए हस्ताक्षर की आवश्यकता नहीं है।",
+        "kn": "ಇದು ಸಿಸ್ಟಂ-ಜನಿತ ದಾಖಲೆಯಾಗಿದ್ದು, ಸಹಿಯ ಅಗತ್ಯವಿಲ್ಲ.",
+    },
+    "install_app_prompt": {
+        "en": "Install this app on your phone for quick, one-tap access.",
+        "te": "త్వరిత యాక్సెస్ కోసం ఈ యాప్‌ను మీ ఫోన్‌లో ఇన్‌స్టాల్ చేసుకోండి.",
+        "hi": "तुरंत एक-टैप एक्सेस के लिए इस ऐप को अपने फ़ोन में इंस्टॉल करें।",
+        "kn": "ತ್ವರಿತ ಪ್ರವೇಶಕ್ಕಾಗಿ ಈ ಆ್ಯಪ್ ಅನ್ನು ನಿಮ್ಮ ಫೋನ್‌ನಲ್ಲಿ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ.",
+    },
+    "install": {"en": "Install", "te": "ఇన్‌స్టాల్", "hi": "इंस्टॉल करें", "kn": "ಇನ್‌ಸ್ಟಾಲ್"},
+    "not_now": {"en": "Not now", "te": "ఇప్పుడు వద్దు", "hi": "अभी नहीं", "kn": "ಈಗ ಬೇಡ"},
 }
 
 

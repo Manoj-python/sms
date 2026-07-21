@@ -6,6 +6,14 @@ function markSelectedPayOption() {
     var input = el.querySelector("input[type=radio]");
     el.classList.toggle("selected", !!(input && input.checked));
   });
+  // The amount field only makes sense once "Any other payment" / "Advance
+  // EMI or Foreclosure Amount" (value="part") is actually selected — showing
+  // it unconditionally invited entering an amount under the wrong option.
+  var partAmountField = document.getElementById("part-amount-field");
+  if (partAmountField) {
+    var partRadio = document.querySelector('.pay-option input[value="part"]');
+    partAmountField.classList.toggle("show", !!(partRadio && partRadio.checked));
+  }
 }
 
 document.addEventListener("change", function (e) {
@@ -72,3 +80,53 @@ function requestDeviceLocation() {
 }
 
 document.addEventListener("DOMContentLoaded", requestDeviceLocation);
+
+// PWA: register the static-asset cache (see static/sw.js) and show a
+// lightweight custom "Install app" banner instead of relying on the
+// browser's own mini-infobar, which most mobile browsers show only once and
+// easily get missed. beforeinstallprompt only fires when the browser has
+// already decided the manifest+SW meet its install criteria, so showing the
+// banner is itself the availability check — no feature-detection needed
+// beyond that.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("/sw.js");
+  });
+}
+
+var deferredInstallPrompt = null;
+
+function showInstallBanner() {
+  if (localStorage.getItem("installBannerDismissed") === "1") return;
+  var banner = document.getElementById("install-banner");
+  if (banner) banner.classList.add("show");
+}
+
+function hideInstallBanner() {
+  var banner = document.getElementById("install-banner");
+  if (banner) banner.classList.remove("show");
+}
+
+window.addEventListener("beforeinstallprompt", function (e) {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  showInstallBanner();
+});
+
+window.addEventListener("appinstalled", function () {
+  hideInstallBanner();
+  deferredInstallPrompt = null;
+});
+
+document.addEventListener("click", function (e) {
+  if (e.target && e.target.id === "install-banner-accept") {
+    hideInstallBanner();
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt = null;
+    }
+  } else if (e.target && e.target.id === "install-banner-dismiss") {
+    hideInstallBanner();
+    localStorage.setItem("installBannerDismissed", "1");
+  }
+});

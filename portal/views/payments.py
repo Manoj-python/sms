@@ -16,16 +16,18 @@ from portal.lms import get_lms
 from portal.services import payment_service
 from portal.services.allcloud_auth import LMSError
 from portal.services.audit import audit
-from portal.services.foreclosure_statement_pdf import build_foreclosure_statement_pdf
+from portal.services.foreclosure_statement_pdf import build_foreclosure_statement_pdf, compute_foreclosure
 from portal.services.installment_receipt_pdf import (
     _amount_for_date,
     _dmy,
     build_charge_receipt_pdf,
     build_installment_receipt_pdf,
+    charge_receipt_items,
     receipt_dates,
+    voucher_breakdown,
 )
 from portal.services.receipt_pdf import build_receipt_pdf
-from portal.services.statement_pdf import build_statement_pdf
+from portal.services.statement_pdf import _last_date, _paid_amount, build_statement_pdf
 
 
 # Statement/payment-history downloads are gated behind dues: a customer 3+
@@ -205,12 +207,24 @@ async def generate_qr(request, sess, finance_id: str):
         )
     except ValueError as exc:
         error_key = str(exc)
-        ctx = {"error_key": error_key}
+        min_emi_amount = payment_service.minimum_emi_amount(emi, total, emi_due_count)
+        # Re-renders the WHOLE form (not just a bare error) so the customer
+        # can immediately fix the amount and resubmit — replacing #pay-box
+        # with just an error message (the old behaviour) meant losing the
+        # radio options / amount field / Pay Now button entirely, with no
+        # way back short of a full page reload.
+        ctx = {
+            "error_key": error_key, "finance_id": finance_id,
+            "min_emi_amount": min_emi_amount,
+            "max_part_amount": payment_service.max_part_payment(loan_amount),
+            "total_due_display": total, "selected_option": option,
+            "part_amount_value": part_amount,
+        }
         if error_key == "pay_min_part":
-            ctx["min_amount"] = payment_service.minimum_emi_amount(emi, total, emi_due_count)
+            ctx["min_amount"] = min_emi_amount
         elif error_key == "pay_exceeds_max":
             ctx["max_amount"] = payment_service.max_part_payment(loan_amount)
-        return render(request, "partials/pay_error.html", ctx)
+        return render(request, "partials/pay_form.html", ctx)
 
     # Charges are collected in full first; the remainder is the EMI/principal
     # leg. lpi uses the same capped late-charges figure as `total` above —
@@ -244,7 +258,13 @@ async def generate_qr(request, sess, finance_id: str):
         txn.status = "FAILED"
         txn.last_error = "GetQRCode failed"
         await txn.asave()
-        return render(request, "partials/pay_error.html", {"error_key": "err_lms_down"})
+        return render(request, "partials/pay_form.html", {
+            "error_key": "err_lms_down", "finance_id": finance_id,
+            "min_emi_amount": payment_service.minimum_emi_amount(emi, total, emi_due_count),
+            "max_part_amount": payment_service.max_part_payment(loan_amount),
+            "total_due_display": total, "selected_option": option,
+            "part_amount_value": part_amount,
+        })
 
     txn.lms_receipt_ref = qr.reference[:80]
     await txn.asave()
@@ -460,3 +480,158 @@ async def charge_receipt_pdf(request, sess, finance_id: str, target_date: str):
             )
         },
     )
+
+
+# --- in-portal HTML views ----------------------------------------------
+# A responsive, mobile-friendly alternative to opening the PDF — same live
+# data and same access gates as the PDF views above, just rendered as a
+# normal page instead of a fixed-layout document. The PDF stays available
+# from each of these pages (its own "Download PDF" link) for anyone who
+# wants the file itself — this doesn't replace the PDF, just adds a faster
+# way to look at it on a phone (no PDF viewer, no pinch-zoom).
+
+
+@require_session
+async def statement_view(request, sess, finance_id: str):
+    lms = get_lms()
+    await assert_loan_access(lms, sess, finance_id, request)
+    loans = await lms.get_loans_by_mobile(sess.mobile)
+    base_loan = next((l for l in loans if str(l.finance_id) == str(finance_id)), None)
+    if base_loan is None:
+        return HttpResponseNotFound()
+    try:
+        agr_loans = await lms.get_loan_by_agreement(base_loan.agreement_no)
+        loan = next(
+            (l for l in agr_loans if l.agreement_no.upper() == base_loan.agreement_no.upper()),
+            base_loan,
+        )
+        customers = await lms.get_customer_search(sess.mobile)
+        customer = customers[0] if customers else None
+    except LMSError:
+        return render(request, "error.html", {"error_key": "err_lms_down"}, status=503)
+    if customer is None:
+        return render(request, "error.html", {"error_key": "err_lms_down"}, status=503)
+    try:
+        lcc = await lms.get_lcc_details(loan.agreement_no)
+    except LMSError:
+        lcc = None
+
+    gated = await _seize_gate(request, sess, finance_id, loan, lcc, "statement_view")
+    if gated is not None:
+        return gated
+    gated = await _dues_gate(request, sess, finance_id, loan, "statement_view")
+    if gated is not None:
+        return gated
+
+    total_dues = round(loan.overdue_amount + loan.lpi_dues + loan.total_vas_dues, 2)
+    # Mirrors statement_pdf.py's repayment-schedule table — precomputed here
+    # (not in the template) since PaidAmount/PaymentDate can be
+    # comma-separated multi-payment strings that need the same parsing
+    # statement_pdf.py already solved (see _paid_amount/_last_date there).
+    schedule_rows = [
+        {"entry": e, "paid": _paid_amount(e.paid_amount), "last_paid": _last_date(e.payment_date)}
+        for e in loan.repayment_schedules
+    ]
+    await audit(request, "statement_viewed", detail=f"finance_id={finance_id} agreement_no={loan.agreement_no}",
+                session_id=sess.id, mobile_mask=sess.mobile_mask, mobile=sess.mobile)
+    return render(request, "documents/statement_view.html", {
+        "sess": sess, "loan": loan, "customer": customer, "lcc": lcc,
+        "finance_id": finance_id, "total_dues": total_dues, "schedule_rows": schedule_rows,
+    })
+
+
+@require_session
+async def foreclosure_view(request, sess, finance_id: str):
+    lms = get_lms()
+    await assert_loan_access(lms, sess, finance_id, request)
+    try:
+        loan, customer, lcc = await _load_agreement_loan_and_customer(lms, sess, finance_id)
+    except LMSError:
+        return render(request, "error.html", {"error_key": "err_lms_down"}, status=503)
+    if loan is None or customer is None:
+        return render(request, "error.html", {"error_key": "err_lms_down"}, status=503)
+
+    gated = await _seize_gate(request, sess, finance_id, loan, lcc, "foreclosure_view")
+    if gated is not None:
+        return gated
+    gated = await _foreclosure_dues_gate(request, sess, finance_id, loan, "foreclosure_view")
+    if gated is not None:
+        return gated
+
+    calc = compute_foreclosure(loan, lcc)
+    await audit(request, "foreclosure_statement_viewed",
+                detail=f"finance_id={finance_id} agreement_no={loan.agreement_no}",
+                session_id=sess.id, mobile_mask=sess.mobile_mask, mobile=sess.mobile)
+    return render(request, "documents/foreclosure_view.html", {
+        "sess": sess, "loan": loan, "customer": customer, "lcc": lcc,
+        "finance_id": finance_id, "calc": calc, "as_of_str": calc["_as_of"].strftime("%d-%m-%Y"),
+    })
+
+
+@require_session
+async def receipt_by_date_view(request, sess, finance_id: str, target_date: str):
+    lms = get_lms()
+    await assert_loan_access(lms, sess, finance_id, request)
+    try:
+        loan, customer, lcc = await _load_agreement_loan_and_customer(lms, sess, finance_id)
+    except LMSError:
+        return render(request, "error.html", {"error_key": "err_lms_down"}, status=503)
+    if loan is None or customer is None:
+        return render(request, "error.html", {"error_key": "err_lms_down"}, status=503)
+
+    gated = await _seize_gate(request, sess, finance_id, loan, lcc, "receipt_by_date_view")
+    if gated is not None:
+        return gated
+
+    target_date = _dmy(target_date)
+    installment = next(
+        (e for e in loan.repayment_schedules if _amount_for_date(e, target_date) > 0), None
+    )
+    if installment is None:
+        return HttpResponseNotFound()
+
+    breakdown = voucher_breakdown(loan, target_date)
+    await audit(request, "installment_receipt_viewed",
+                detail=f"finance_id={finance_id} agreement_no={loan.agreement_no} date={target_date}",
+                session_id=sess.id, mobile_mask=sess.mobile_mask, mobile=sess.mobile)
+    return render(request, "documents/receipt_view.html", {
+        "sess": sess, "loan": loan, "customer": customer, "lcc": lcc,
+        "finance_id": finance_id, "target_date": target_date, "breakdown": breakdown,
+    })
+
+
+@require_session
+async def charge_receipt_view(request, sess, finance_id: str, target_date: str):
+    lms = get_lms()
+    await assert_loan_access(lms, sess, finance_id, request)
+    try:
+        loan, customer, lcc = await _load_agreement_loan_and_customer(lms, sess, finance_id)
+    except LMSError:
+        return render(request, "error.html", {"error_key": "err_lms_down"}, status=503)
+    if loan is None or customer is None:
+        return render(request, "error.html", {"error_key": "err_lms_down"}, status=503)
+
+    gated = await _seize_gate(request, sess, finance_id, loan, lcc, "charge_receipt_view")
+    if gated is not None:
+        return gated
+
+    target_date = _dmy(target_date)
+    charges = charge_receipt_items(loan, target_date)
+    await audit(request, "charge_receipt_viewed",
+                detail=f"finance_id={finance_id} agreement_no={loan.agreement_no} date={target_date}",
+                session_id=sess.id, mobile_mask=sess.mobile_mask, mobile=sess.mobile)
+    return render(request, "documents/charge_receipt_view.html", {
+        "sess": sess, "loan": loan, "customer": customer, "lcc": lcc,
+        "finance_id": finance_id, "target_date": target_date, "charges": charges,
+        "total": sum(ch.amount for ch in charges),
+    })
+
+
+@require_session
+async def payment_receipt_view(request, sess, txn_id: int):
+    txn = await payment_service.get_owned_txn(txn_id, sess.id)
+    if txn is None or txn.status != "RECONCILED":
+        return HttpResponseNotFound()
+    await audit(request, "receipt_viewed", detail=f"txn={txn.id}",
+                session_id=sess.id, mobile_mask=sess.mobile_mask, mobile=sess.mobile)
+    return render(request, "documents/payment_receipt_view.html", {"sess": sess, "txn": txn})

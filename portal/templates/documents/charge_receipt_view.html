@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="btn-link" href="/loan/{{ finance_id }}/downloads">← {{ t('back_dashboard') }}</a>
+
+<div class="card">
+  <div class="doc-head">
+    <div>
+      <h1>{{ t('charges_title') }}</h1>
+      <p class="muted">{{ loan.agreement_no }} · {{ target_date }}</p>
+    </div>
+    <a class="doc-link" href="/loan/{{ finance_id }}/charges/{{ target_date }}/receipt.pdf">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      {{ t('download_pdf') }}
+    </a>
+  </div>
+
+  <div class="kv">
+    <div><span class="k">{{ t('customer_name') }}</span><span class="v">{{ customer.customer_name.title() }}</span></div>
+    <div><span class="k">{{ t('vehicle_no') }}</span><span class="v">{{ lcc.registration_no if lcc else '—' }}</span></div>
+  </div>
+
+  {% if charges %}
+  <table class="dues-table">
+    <tr><th>{{ t('description') }}</th><th></th></tr>
+    {% for ch in charges %}
+    <tr><td>{{ ch.name or ch.vas_type_id }}</td><td>₹{{ '%.2f'|format(ch.amount) }}</td></tr>
+    {% endfor %}
+    <tr class="total"><td>{{ t('total_received') }}</td><td>₹{{ '%.2f'|format(total) }}</td></tr>
+  </table>
+  {% else %}
+  <p class="muted">{{ t('no_charges_found') }}</p>
+  {% endif %}
+
+  <p class="muted" style="margin-top:12px">{{ t('system_generated_note') }}</p>
+</div>
+{% endblock %}

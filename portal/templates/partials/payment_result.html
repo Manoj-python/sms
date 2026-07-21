@@ -16,7 +16,10 @@
     <tr><td>{{ t('collection_charges') }}</td><td>₹{{ '%.2f'|format(txn.collection_charges) }}</td></tr>
     <tr class="total"><td>{{ t('total_payable') }}</td><td>₹{{ '%.2f'|format(txn.total_amount) }}</td></tr>
   </table>
-  <a class="btn btn-primary" href="/payment/{{ txn.id }}/receipt.pdf">{{ t('download_receipt') }}</a>
+  <a class="btn btn-primary" href="/payment/{{ txn.id }}/receipt/view">{{ t('view_receipt') }}</a>
+  <p style="text-align:center;margin-top:6px">
+    <a class="btn-link" href="/payment/{{ txn.id }}/receipt.pdf">{{ t('download_receipt') }}</a>
+  </p>
 {% else %}
   <div class="alert alert-warn">{{ t('account_updating') }}</div>
 {% endif %}

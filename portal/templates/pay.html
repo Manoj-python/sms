@@ -22,9 +22,28 @@
     <div><span class="k">{{ t('vehicle_class') }}</span><span class="v">{{ lcc.vehicle_class or '—' }}</span></div>
     {% endif %}
   </div>
-  <a class="btn-link" href="/loan/{{ finance_id }}/statement.pdf">{{ t('download_statement') }}</a>
-  <a class="btn-link" href="/loan/{{ finance_id }}/foreclosure.pdf">{{ t('download_foreclosure_statement') }}</a>
-  <a class="btn-link" href="/loan/{{ finance_id }}/downloads">{{ t('payment_history') }}</a>
+  <div class="doc-actions">
+    <a class="doc-link" href="/loan/{{ finance_id }}/statement/view">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+      {{ t('view_statement') }}
+    </a>
+    <a class="doc-link" href="/loan/{{ finance_id }}/statement.pdf">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      {{ t('download_statement') }}
+    </a>
+    <a class="doc-link" href="/loan/{{ finance_id }}/foreclosure/view">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+      {{ t('view_foreclosure_statement') }}
+    </a>
+    <a class="doc-link" href="/loan/{{ finance_id }}/foreclosure.pdf">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      {{ t('download_foreclosure_statement') }}
+    </a>
+    <a class="doc-link" href="/loan/{{ finance_id }}/downloads">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      {{ t('payment_history') }}
+    </a>
+  </div>
 </div>
 {% endif %}
 
@@ -55,26 +74,6 @@
 </div>
 
 <div class="card" id="pay-box">
-  <h2>{{ t('pay_option') }}</h2>
-  <form hx-post="/loan/{{ finance_id }}/pay/qr" hx-target="#pay-box" hx-swap="innerHTML">
-    <label class="pay-option">
-      <input type="radio" name="option" value="total" checked>
-      <span>{{ t('pay_total') }} — <strong>₹{{ '%.2f'|format(total_due_display) }}</strong></span>
-    </label>
-    <label class="pay-option">
-      <input type="radio" name="option" value="emi">
-      <span>{{ t('pay_emi') }} — <strong>₹{{ '%.2f'|format(min_emi_amount) }}</strong></span>
-    </label>
-    <label class="pay-option">
-      <input type="radio" name="option" value="part">
-      <span>{{ t('pay_part') }} ({{ t('minimum_emi_amount') }} ₹{{ '%.2f'|format(min_emi_amount) }})</span>
-    </label>
-    <input type="number" name="part_amount" min="{{ min_emi_amount|int }}" max="{{ max_part_amount|int }}" step="1" placeholder="₹"
-           style="margin-top:4px" aria-label="{{ t('pay_part') }}">
-
-    {# GetQRCode gives no real QR/UPI intent to scan — both ShowQR values
-       return the identical checkout URL — so there's one action, not two. #}
-    <button class="btn btn-primary" type="submit" name="method" value="paynow">{{ t('pay_now') }}</button>
-  </form>
+  {% include "partials/pay_form.html" %}
 </div>
 {% endblock %}

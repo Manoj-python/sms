@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="btn-link" href="/loan/{{ finance_id }}/pay">← {{ t('back_dashboard') }}</a>
+
+<div class="card">
+  <div class="doc-head">
+    <div>
+      <h1>{{ t('foreclosure_title') }}</h1>
+      <p class="muted">{{ loan.agreement_no }}</p>
+    </div>
+    <a class="doc-link" href="/loan/{{ finance_id }}/foreclosure.pdf">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      {{ t('download_pdf') }}
+    </a>
+  </div>
+
+  <div class="alert alert-warn">
+    <strong>{{ t('valid_until') }}: {{ as_of_str }}</strong><br>
+    {{ t('foreclosure_validity_notice') }}
+  </div>
+
+  <h2>{{ t('borrower_details') }}</h2>
+  <div class="kv">
+    <div><span class="k">{{ t('customer_name') }}</span><span class="v">{{ customer.customer_name.title() }}</span></div>
+    <div><span class="k">{{ t('mobile_no') }}</span><span class="v">{{ customer.contact }}</span></div>
+    <div><span class="k">{{ t('branch') }}</span><span class="v">{{ lcc.branch if lcc else '—' }}</span></div>
+    <div><span class="k">{{ t('region') }}</span><span class="v">{{ lcc.region if lcc else '—' }}</span></div>
+    <div><span class="k">{{ t('vehicle_no') }}</span><span class="v">{{ lcc.registration_no if lcc else '—' }}</span></div>
+    <div><span class="k">{{ t('vehicle_class') }}</span><span class="v">{{ lcc.vehicle_class if lcc else '—' }}</span></div>
+  </div>
+
+  <h2>{{ t('foreclosure_breakup') }}</h2>
+  <table class="dues-table">
+    <tr><td>{{ t('fc_charges') }}</td><td>₹{{ '%.2f'|format(calc.foreclosure_charges) }}</td></tr>
+    <tr><td>{{ t('emi_overdue') }}</td><td>₹{{ '%.2f'|format(calc.emi_due) }}</td></tr>
+    <tr><td>{{ t('future_principal') }}</td><td>₹{{ '%.2f'|format(calc.future_principal) }}</td></tr>
+    <tr><td>{{ t('broken_interest') }}</td><td>₹{{ '%.2f'|format(calc.broken_interest) }}</td></tr>
+    <tr><td>{{ t('late_charges') }}</td><td>₹{{ '%.2f'|format(calc.lpi) }}</td></tr>
+    {% if calc.handloan %}<tr><td>{{ t('handloan') }}</td><td>₹{{ '%.2f'|format(calc.handloan) }}</td></tr>{% endif %}
+    <tr><td>{{ t('vas_charges') }}</td><td>₹{{ '%.2f'|format(calc.vas_charge) }}</td></tr>
+    {% if calc.insurance %}<tr><td>{{ t('insurance') }}</td><td>₹{{ '%.2f'|format(calc.insurance) }}</td></tr>{% endif %}
+    <tr class="total"><td>{{ t('total_receivables') }}</td><td>₹{{ '%.2f'|format(calc.total_receivables) }}</td></tr>
+  </table>
+</div>
+{% endblock %}

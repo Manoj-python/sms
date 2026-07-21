@@ -1,0 +1,53 @@
+{# Payment-options form for the #pay-box card in pay.html. Also re-rendered
+   in place (via hx-swap="innerHTML" on #pay-box) whenever generate_qr's
+   validate_amount() rejects the submitted amount — the form must come back
+   WITH the error, not get replaced by a bare error message: losing the
+   radio options / amount field / Pay Now button on an invalid amount felt
+   like being bounced to a dead-end page, and left no way to correct the
+   amount without a full page reload. #}
+{% set sel = selected_option if selected_option is defined and selected_option else ('total' if total_due_display > 0 else 'part') %}
+{% set pay_part_label = t('pay_part_zero_due') if total_due_display <= 0 else t('pay_part') %}
+<h2>{{ t('pay_option') }}</h2>
+{% if error_key is defined %}
+<div class="alert alert-error">
+  {% if error_key == 'pay_min_part' and min_amount is defined %}
+    {{ t(error_key).format(amount='%.2f'|format(min_amount)) }}
+  {% elif error_key == 'pay_exceeds_max' and max_amount is defined %}
+    {{ t(error_key).format(amount='%.2f'|format(max_amount)) }}
+  {% else %}
+    {{ t(error_key) }}
+  {% endif %}
+</div>
+{% endif %}
+<form hx-post="/loan/{{ finance_id }}/pay/qr" hx-target="#pay-box" hx-swap="innerHTML">
+  {# Total due can be ₹0.00 (nothing currently owed — e.g. a customer paying
+     ahead of schedule) — there's nothing to pay under that option then, so
+     it's dropped entirely rather than shown as a selectable ₹0 payment. #}
+  {% if total_due_display > 0 %}
+  <label class="pay-option">
+    <input type="radio" name="option" value="total" {{ 'checked' if sel == 'total' }}>
+    <span>{{ t('pay_total') }} — <strong>₹{{ '%.2f'|format(total_due_display) }}</strong></span>
+  </label>
+  {% endif %}
+  <label class="pay-option">
+    <input type="radio" name="option" value="emi" {{ 'checked' if sel == 'emi' }}>
+    <span>{{ t('pay_emi') }} — <strong>₹{{ '%.2f'|format(min_emi_amount) }}</strong></span>
+  </label>
+  <label class="pay-option">
+    <input type="radio" name="option" value="part" {{ 'checked' if sel == 'part' }}>
+    <span>{{ pay_part_label }} ({{ t('minimum_emi_amount') }} ₹{{ '%.2f'|format(min_emi_amount) }})</span>
+  </label>
+  {# Hidden unless "part" is the selected option — shown/hidden live by
+     app.js's markSelectedPayOption() as the radios change, so the amount
+     field only ever appears when it's actually relevant. #}
+  <div id="part-amount-field" class="part-amount-field {{ 'show' if sel == 'part' }}">
+    <input type="number" name="part_amount" min="{{ min_emi_amount|int }}" max="{{ max_part_amount|int }}" step="1"
+           placeholder="{{ t('enter_payment_amount') }}"
+           value="{{ part_amount_value if part_amount_value is defined and part_amount_value is not none else '' }}"
+           style="margin-top:4px" aria-label="{{ pay_part_label }}">
+  </div>
+
+  {# GetQRCode gives no real QR/UPI intent to scan — both ShowQR values
+     return the identical checkout URL — so there's one action, not two. #}
+  <button class="btn btn-primary" type="submit" name="method" value="paynow">{{ t('pay_now') }}</button>
+</form>

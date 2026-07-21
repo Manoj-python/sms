@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="btn-link" href="/dashboard">← {{ t('back_dashboard') }}</a>
+
+<div class="card">
+  <div class="doc-head">
+    <div>
+      <h1>{{ t('payment_receipt_title') }}</h1>
+      <p class="muted">{{ txn.receipt_no or '—' }}</p>
+    </div>
+    <a class="doc-link" href="/payment/{{ txn.id }}/receipt.pdf">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      {{ t('download_pdf') }}
+    </a>
+  </div>
+
+  <div class="kv">
+    <div><span class="k">{{ t('receipt_no') }}</span><span class="v">{{ txn.receipt_no or '—' }}</span></div>
+    <div><span class="k">{{ t('payment_date') }}</span><span class="v">{{ txn.updated_at.strftime('%d-%m-%Y %H:%M') }}</span></div>
+    <div><span class="k">{{ t('customer_name') }}</span><span class="v">{{ sess.customer_name or '—' }}</span></div>
+    <div><span class="k">{{ t('agreement_no_short') }}</span><span class="v">{{ txn.agreement_no or '—' }}</span></div>
+    <div><span class="k">{{ t('utr_ref') }}</span><span class="v">{{ txn.utr or txn.idempotency_key }}</span></div>
+    <div><span class="k">{{ t('payment_mode') }}</span><span class="v">UPI</span></div>
+  </div>
+
+  <h2>{{ t('allocation_breakup') }}</h2>
+  <table class="dues-table">
+    <tr><td>{{ t('principal_emi') }}</td><td>₹{{ '%.2f'|format(txn.amount) }}</td></tr>
+    <tr><td>{{ t('penal_charges') }}</td><td>₹{{ '%.2f'|format(txn.lpi_amount) }}</td></tr>
+    <tr><td>{{ t('collection_charges') }}</td><td>₹{{ '%.2f'|format(txn.collection_charges) }}</td></tr>
+    {% if txn.discount_amount %}
+    <tr><td>{{ t('discount') }}</td><td>-₹{{ '%.2f'|format(txn.discount_amount) }}</td></tr>
+    {% endif %}
+    <tr class="total"><td>{{ t('total_received') }}</td><td>₹{{ '%.2f'|format(txn.total_amount) }}</td></tr>
+  </table>
+
+  <p class="muted" style="margin-top:12px">{{ t('system_generated_note') }}</p>
+</div>
+{% endblock %}

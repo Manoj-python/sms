@@ -500,6 +500,19 @@ def build_installment_receipt_pdf(
     return buf.getvalue()
 
 
+def charge_receipt_items(loan: LoanSummary, target_date: str) -> list:
+    """The standalone bounce-charge VAS entries due on `target_date` — see
+    build_charge_receipt_pdf's docstring for why DueDate (not ReceivedDate)
+    is the key and why this is scoped to "bounce" specifically. Factored out
+    so the HTML view (documents/charge_receipt_view.html) shows exactly the
+    same line items as the PDF, not a re-derived approximation."""
+    return [
+        v for v in loan.vas_list
+        if "bounce" in v.name.lower()
+        and _dmy(v.due_date) == target_date
+    ]
+
+
 def build_charge_receipt_pdf(
     customer: CustomerSearchResult,
     loan: LoanSummary,
@@ -516,11 +529,7 @@ def build_charge_receipt_pdf(
     (app usage fees, postal, ...) follow the opposite rule — bundled into
     an EMI voucher by ReceivedDate, see build_installment_receipt_pdf."""
     s = get_settings()
-    charges = [
-        v for v in loan.vas_list
-        if "bounce" in v.name.lower()
-        and _dmy(v.due_date) == target_date
-    ]
+    charges = charge_receipt_items(loan, target_date)
 
     buf = BytesIO()
     extra_rows = max(0, len(charges) - 1)

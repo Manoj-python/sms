@@ -5,7 +5,16 @@
 <div class="card">
   <h1>{{ t('downloads_title') }}</h1>
   {% if loan %}<p class="muted">{{ loan.agreement_no }}</p>{% endif %}
-  <a class="btn-link" href="/loan/{{ finance_id }}/statement.pdf">{{ t('download_statement') }}</a>
+  <div class="doc-actions">
+    <a class="doc-link" href="/loan/{{ finance_id }}/statement/view">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+      {{ t('view_statement') }}
+    </a>
+    <a class="doc-link" href="/loan/{{ finance_id }}/statement.pdf">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      {{ t('download_statement') }}
+    </a>
+  </div>
 </div>
 
 <div class="card">
@@ -17,7 +26,12 @@
     <tr>
       <td>{{ d.date }}</td>
       <td>₹{{ '%.2f'|format(d.amount) }}</td>
-      <td><a class="btn-link" href="/loan/{{ finance_id }}/receipt/{{ d.date }}.pdf">{{ t('download_receipt') }}</a></td>
+      <td>
+        <a class="doc-link" href="/loan/{{ finance_id }}/receipt/{{ d.date }}/view">
+          <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          {{ t('view_receipt') }}
+        </a>
+      </td>
     </tr>
     {% endfor %}
   </table>
