@@ -84,3 +84,5 @@ LOGGING = {
         "django.server": {"level": "INFO", "handlers": ["console"], "propagate": False},
     },
 }
+
+

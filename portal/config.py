@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     allcloud_usertoken_uat: str = ""
     allcloud_apikey_uat: str = ""
 
-    lms_timeout_seconds: float = 10.0
+    lms_timeout_seconds: float = 70.0
     lms_max_retries: int = 2
     # Bounded timeout for the multi-tenant "which lender is this" discovery
     # probes (multi_lms.py) — every real hit/miss has resolved in well under
