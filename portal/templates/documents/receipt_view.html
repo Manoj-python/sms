@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="btn-link" href="/loan/{{ finance_id }}/downloads">← {{ t('back_dashboard') }}</a>
+
+<div class="card">
+  <div class="doc-head">
+    <div>
+      <h1>{{ t('payment_receipt_title') }}</h1>
+      <p class="muted">{{ loan.agreement_no }} · {{ target_date }}</p>
+    </div>
+    <a class="doc-link" href="/loan/{{ finance_id }}/receipt/{{ target_date }}.pdf">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      {{ t('download_pdf') }}
+    </a>
+  </div>
+
+  <div class="kv">
+    <div><span class="k">{{ t('customer_name') }}</span><span class="v">{{ customer.customer_name.title() }}</span></div>
+    <div><span class="k">{{ t('vehicle_no') }}</span><span class="v">{{ lcc.registration_no if lcc else '—' }}</span></div>
+  </div>
+
+  <table class="dues-table">
+    <tr><th>#</th><th>{{ t('col_due_date') }}</th><th>{{ t('description') }}</th><th></th></tr>
+    {% for e in breakdown.entries %}
+    <tr>
+      <td>{{ e.installment_no }}</td>
+      <td>{{ e.due_date|dmy }}</td>
+      <td>{{ t('emi') }}</td>
+      <td>₹{{ '%.2f'|format(e.amount) }}</td>
+    </tr>
+    {% endfor %}
+    {% if breakdown.total_lpc %}
+    <tr><td colspan="3">{{ t('late_charges') }}</td><td>₹{{ '%.2f'|format(breakdown.total_lpc) }}</td></tr>
+    {% endif %}
+    {% if breakdown.total_collection %}
+    <tr><td colspan="3">{{ t('collection_charges') }}</td><td>₹{{ '%.2f'|format(breakdown.total_collection) }}</td></tr>
+    {% endif %}
+    {% if breakdown.other_charges %}
+    <tr><td colspan="3">{{ t('other_charges') }}</td><td>₹{{ '%.2f'|format(breakdown.other_charges) }}</td></tr>
+    {% endif %}
+    {% if breakdown.bounce_charges %}
+    <tr><td colspan="3">{{ t('bounce_charges') }}</td><td>₹{{ '%.2f'|format(breakdown.bounce_charges) }}</td></tr>
+    {% endif %}
+    <tr class="total"><td colspan="3">{{ t('total_received') }}</td><td>₹{{ '%.2f'|format(breakdown.total) }}</td></tr>
+  </table>
+
+  <p class="muted" style="margin-top:12px">{{ t('system_generated_note') }}</p>
+</div>
+{% endblock %}

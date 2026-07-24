@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="alert alert-error">{{ t(error_key) }}</div>
+  {% if error_key == 'loan_blocked' %}
+  <a class="btn btn-primary whatsapp-link" href="https://wa.me/91{{ settings.helpline_number }}" target="_blank" rel="noopener">
+    {{ t('whatsapp_us') }}
+  </a>
+  <a class="btn-link" href="/dashboard">{{ t('back_dashboard') }}</a>
+  {% else %}
+  <a class="btn btn-primary" href="/dashboard">{{ t('back_dashboard') }}</a>
+  {% endif %}
+</div>
+{% endblock %}

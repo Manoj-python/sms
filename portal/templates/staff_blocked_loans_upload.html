@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bulk Upload Blocked Loans — SMSquare Staff</title>
+  <style>
+    :root {
+      --navy: #12355b; --teal: #0e9494; --ink: #1c2b3a; --muted: #64748b;
+      --border: #e2e8f0; --bg: #f8fafc; --card: #fff;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; color: var(--ink); }
+    header {
+      background: var(--navy); color: #fff; padding: 14px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 1px 6px rgba(0,0,0,.15);
+    }
+    header strong { font-size: 15px; letter-spacing: .2px; }
+    header nav a { color: #cbd5e1; text-decoration: none; font-size: 13px; margin-left: 18px; }
+    header nav a:hover { color: #fff; }
+    main { padding: 20px 24px 40px; max-width: 860px; margin: 0 auto; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 20px 22px; box-shadow: 0 1px 3px rgba(0,0,0,.04); margin-bottom: 16px;
+    }
+    .btn {
+      padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+      cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: var(--teal); color: #fff; }
+    .btn-primary:hover { background: #0c7f7f; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .alert-error { padding: 10px 12px; border-radius: 6px; background: #fdecec; color: #b91c1c; margin-bottom: 14px; font-size: 13px; }
+    .summary { display: flex; gap: 18px; font-size: 14px; margin-bottom: 12px; }
+    .summary strong { font-size: 18px; }
+    .s-added { color: #1a7f37; }
+    .s-skipped { color: #b45309; }
+    .s-failed { color: #b91c1c; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 8px 10px; font-size: 12.5px; border-bottom: 1px solid var(--border); }
+    th { background: #f1f5f9; color: #334155; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .03em; }
+    tr:last-child td { border-bottom: none; }
+    .pill { font-weight: 600; padding: 2px 8px; border-radius: 999px; font-size: 11px; display: inline-block; }
+    .pill-added { color: #1a7f37; background: #e6f4ea; }
+    .pill-already_blocked { color: #b45309; background: #fef3e2; }
+    .pill-not_found { color: #b91c1c; background: #fdecec; }
+    .back-link { display: inline-block; margin-top: 4px; color: var(--teal); text-decoration: none; font-size: 13px; }
+    code { background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Bulk Upload Blocked Loans — SMSquare Staff</strong>
+    <nav>
+      <a href="/staff/report">Audit Report</a>
+      <a href="/staff/blocked-loans">Blocked Loans</a>
+      <a href="/staff/logout">Logout</a>
+    </nav>
+  </header>
+  <main>
+    {% if results is defined and results %}
+    <div class="card">
+      <h2 style="margin-top:0">Upload results</h2>
+      <div class="summary">
+        <span class="s-added"><strong>{{ added }}</strong> blocked</span>
+        <span class="s-skipped"><strong>{{ skipped }}</strong> already blocked</span>
+        <span class="s-failed"><strong>{{ failed }}</strong> not found</span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Agreement No</th><th>Customer Name</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for r in results %}
+          <tr>
+            <td>{{ r.agreement_no }}</td>
+            <td>{{ r.customer_name.title() if r.customer_name is defined and r.customer_name else '—' }}</td>
+            <td><span class="pill pill-{{ r.status }}">{{ r.status.replace('_', ' ') }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p style="margin-top:14px">
+        <a class="btn btn-primary" href="/staff/blocked-loans">View blocked loans</a>
+        <a class="back-link" style="margin-left:12px" href="/staff/blocked-loans/upload">Upload another file</a>
+      </p>
+    </div>
+    {% else %}
+    <div class="card">
+      <h2 style="margin-top:0">Bulk upload</h2>
+      {% if error %}<div class="alert-error">{{ error }}</div>{% endif %}
+      <p class="muted">
+        Upload a <strong>.xlsx</strong> or <strong>.csv</strong> file with a header row. Required column:
+        <code>Agreement No</code> (or any header containing "agreement"/"loan"). Optional columns:
+        <code>Centre</code>, <code>RSP Name</code>, <code>Reason</code>. Customer name, mobile, and
+        branch are fetched live from AllCloud per row — same as blocking a single loan. Maximum
+        <strong>500 rows</strong> per file; a full sheet can take 2&ndash;3 minutes, keep the tab open.
+      </p>
+      <p><a class="back-link" href="/staff/blocked-loans/sample">&#8595; Download sample file</a></p>
+      <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx,.csv" required>
+        <button type="submit" class="btn btn-primary" style="margin-left:10px">Upload &amp; block</button>
+      </form>
+    </div>
+    <a class="back-link" href="/staff/blocked-loans">&larr; Back to Blocked Loans</a>
+    {% endif %}
+  </main>
+</body>
+</html>

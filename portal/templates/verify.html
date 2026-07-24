@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Document Verification — SMSquare</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 16px; box-sizing: border-box; }
+    .box { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 32px; width: 100%; max-width: 380px; }
+    .badge { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 8px; font-weight: 700; margin-bottom: 20px; }
+    .badge.ok { background: #e6f6ec; color: #1a7f37; }
+    .badge.bad { background: #fdecec; color: #b91c1c; }
+    .badge svg { width: 22px; height: 22px; flex-shrink: 0; }
+    h1 { font-size: 16px; margin: 0 0 4px; color: #12355b; }
+    dl { margin: 0; }
+    dt { font-size: 12px; color: #64748b; margin-top: 12px; }
+    dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; color: #1c2b3a; }
+    .note { color: #94a3b8; font-size: 12px; margin-top: 20px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    {% if valid %}
+    <div class="badge ok">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+      Verified — genuinely issued
+    </div>
+    <h1>{{ doc_label }}</h1>
+    <dl>
+      <dt>Loan Number</dt>
+      <dd>{{ agreement_no }}</dd>
+      <dt>Amount</dt>
+      <dd>₹{{ '%.2f'|format(amount) }}</dd>
+      <dt>Document Date</dt>
+      <dd>{{ doc_date }}</dd>
+      <dt>Generated On (IST)</dt>
+      <dd>{{ generated_at }}</dd>
+    </dl>
+    <p class="note">This confirms the document was genuinely issued by SM Square Credit Services Pvt Ltd. and these figures were not altered after issue.</p>
+    {% else %}
+    <div class="badge bad">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+      Could not verify
+    </div>
+    <h1>This document could not be verified</h1>
+    <p class="note">The link is invalid or the document may have been altered. If you received this as a printed or forwarded document, please contact SM Square Credit Services directly to confirm its authenticity.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

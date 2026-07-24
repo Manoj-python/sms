@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="btn-link" href="/loan/{{ finance_id }}/downloads">← {{ t('back_dashboard') }}</a>
+
+<div class="card">
+  <div class="doc-head">
+    <div>
+      <h1>{{ t('statement_title') }}</h1>
+      <p class="muted">{{ loan.agreement_no }}</p>
+    </div>
+    <a class="doc-link" href="/loan/{{ finance_id }}/statement.pdf">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      {{ t('download_pdf') }}
+    </a>
+  </div>
+
+  <h2>{{ t('borrower_details') }}</h2>
+  <div class="kv">
+    <div><span class="k">{{ t('customer_name') }}</span><span class="v">{{ customer.customer_name.title() }}</span></div>
+    <div><span class="k">{{ t('mobile_no') }}</span><span class="v">{{ customer.contact }}</span></div>
+    <div><span class="k">{{ t('address') }}</span><span class="v">{{ customer.full_address or '—' }}</span></div>
+    <div><span class="k">{{ t('branch') }}</span><span class="v">{{ lcc.branch if lcc else '—' }}</span></div>
+    <div><span class="k">{{ t('region') }}</span><span class="v">{{ lcc.region if lcc else '—' }}</span></div>
+    <div><span class="k">{{ t('vehicle_no') }}</span><span class="v">{{ lcc.registration_no if lcc else '—' }}</span></div>
+    <div><span class="k">{{ t('vehicle_class') }}</span><span class="v">{{ lcc.vehicle_class if lcc else '—' }}</span></div>
+  </div>
+
+  <h2>{{ t('loan_details') }}</h2>
+  <div class="kv">
+    <div><span class="k">{{ t('loan_type') }}</span><span class="v">{{ loan.product_type }}</span></div>
+    <div><span class="k">{{ t('loan_amount') }}</span><span class="v">₹{{ '%.2f'|format(loan.loan_amount) }}</span></div>
+    <div><span class="k">{{ t('total_emi') }}</span><span class="v">{{ loan.duration }}</span></div>
+    <div><span class="k">{{ t('next_due') }}</span><span class="v">{{ loan.next_due_date|dmy }}</span></div>
+    <div><span class="k">{{ t('no_of_emi_received') }}</span><span class="v">{{ '%.2f'|format(loan.no_of_paid_emi) }}</span></div>
+    <div><span class="k">{{ t('emi_due_count') }}</span><span class="v">{{ '%.2f'|format(loan.emi_due_count) }}</span></div>
+    <div><span class="k">{{ t('emi') }}</span><span class="v">₹{{ '%.2f'|format(loan.regular_emi_amount) }}</span></div>
+  </div>
+
+  <table class="dues-table">
+    <tr class="total"><td>{{ t('total_due') }}</td><td>₹{{ '%.2f'|format(total_dues) }}</td></tr>
+  </table>
+</div>
+
+{% if loan.guarantors %}
+<div class="card">
+  <h2>{{ t('guarantors') }}</h2>
+  <table class="dues-table plain">
+    <tr><th>{{ t('customer_name') }}</th><th>{{ t('relation') }}</th></tr>
+    {% for g in loan.guarantors %}
+    <tr><td>{{ g.borrower_name.title() }}</td><td>{{ g.entity_type_id }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>{{ t('repayment_schedule') }}</h2>
+  <div class="table-scroll">
+    <table class="dues-table sched-table">
+      <tr>
+        <th>#</th><th>{{ t('col_due_date') }}</th><th>{{ t('emi') }}</th>
+        <th>{{ t('col_paid') }}</th><th>{{ t('col_last_paid') }}</th><th>{{ t('col_lpi_due') }}</th>
+      </tr>
+      {% for row in schedule_rows %}
+      <tr>
+        <td>{{ row.entry.installment_no }}</td>
+        <td>{{ row.entry.due_date|dmy }}</td>
+        <td>₹{{ '%.2f'|format(row.entry.due_amount) }}</td>
+        <td>{{ '₹%.2f'|format(row.paid) if row.paid else '—' }}</td>
+        <td>{{ row.last_paid }}</td>
+        <td>₹{{ '%.2f'|format(row.entry.lpc) }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

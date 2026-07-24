@@ -1,0 +1,51 @@
+{# Three states in one partial (avoids duplicating the lookup-input
+   markup): initial (no error, no found), lookup error, and a successful
+   lookup's pre-filled create form. Swapped into #form-box by
+   blocked_loan_lookup's HTMX response — see staff_blocked_loan_add.html. #}
+{% if found %}
+<div style="padding:10px 12px;border-radius:6px;background:#e6f4ea;color:#1a7f37;margin-bottom:14px;font-size:13px">
+  Found: <strong>{{ found.customer_name.title() if found.customer_name else '(name unavailable)' }}</strong>
+  — {{ found.agreement_no }} ({{ found.lender }})
+  {% if already_blocked %}
+    <br><strong style="color:#b45309">This loan is already blocked.</strong>
+  {% endif %}
+</div>
+<form method="post" action="/staff/blocked-loans/create">
+  <input type="hidden" name="finance_id" value="{{ found.finance_id }}">
+  <input type="hidden" name="lender" value="{{ found.lender }}">
+  <input type="hidden" name="agreement_no" value="{{ found.agreement_no }}">
+
+  <label for="customer_name">Customer Name</label>
+  <input id="customer_name" name="customer_name" type="text" value="{{ found.customer_name }}">
+
+  <label for="mobile">Mobile</label>
+  <input id="mobile" name="mobile" type="text" value="{{ found.mobile }}">
+
+  <label for="branch">Branch</label>
+  <input id="branch" name="branch" type="text" value="{{ found.branch }}">
+
+  <label for="centre">Centre</label>
+  <input id="centre" name="centre" type="text" value="">
+
+  <label for="rsp_name">RSP Name</label>
+  <input id="rsp_name" name="rsp_name" type="text" value="">
+
+  <label for="reason">Reason</label>
+  <textarea id="reason" name="reason" rows="3"></textarea>
+
+  <button type="submit" class="btn btn-primary" style="margin-top:12px" {{ 'disabled' if already_blocked }}>
+    Block this loan
+  </button>
+</form>
+{% else %}
+{% if error %}
+<div style="padding:10px 12px;border-radius:6px;background:#fdecec;color:#b91c1c;margin-bottom:14px;font-size:13px">
+  {{ error }}
+</div>
+{% endif %}
+<form hx-post="/staff/blocked-loans/lookup" hx-target="#form-box" hx-swap="innerHTML">
+  <label for="agreement_no">Agreement / Loan Number</label>
+  <input id="agreement_no" name="agreement_no" type="text" value="{{ agreement_no or '' }}" required autofocus>
+  <button type="submit" class="btn btn-primary" style="margin-top:12px">Look up</button>
+</form>
+{% endif %}

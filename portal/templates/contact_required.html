@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h1>{{ t('contact_required_title') }}</h1>
+  {% if reason == 'seized' %}
+  <p>{{ t('contact_required_seized_message') }}</p>
+  {% else %}
+  <p>{{ t('contact_required_message').format(count='%.2f'|format(emi_due_count)) }}</p>
+  {% endif %}
+  <a class="btn btn-primary whatsapp-link" href="https://wa.me/91{{ settings.helpline_number }}" target="_blank" rel="noopener">
+    {{ t('whatsapp_us') }}
+  </a>
+  <p><a class="btn-link" href="/loan/{{ finance_id }}/pay">← {{ t('back_dashboard') }}</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+<div class="alert alert-error">{{ t(error_key) }}</div>
+<form hx-post="/login/send-otp" hx-target="#login-box" hx-swap="innerHTML">
+  <label for="mobile">{{ t('mobile_number') }}</label>
+  <input type="tel" id="mobile" name="mobile" inputmode="numeric" maxlength="10"
+         pattern="[6-9][0-9]{9}" placeholder="9XXXXXXXXX" required>
+  <button class="btn btn-primary" type="submit">{{ t('send_otp') }}</button>
+</form>

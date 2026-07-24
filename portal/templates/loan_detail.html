@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="btn-link" href="/dashboard">← {{ t('back_dashboard') }}</a>
+{% if loan %}
+<div class="card loan-card {{ 'overdue' if loan.overdue_amount > 0 }}">
+  <h1>{{ loan.product_type }}</h1>
+  <p class="muted">{{ loan.agreement_no }}</p>
+  <div class="kv">
+    <div><span class="k">{{ t('emi') }}</span><span class="v">₹{{ '%.2f'|format(loan.emi_amount) }}</span></div>
+    <div><span class="k">{{ t('next_due') }}</span><span class="v">{{ loan.next_due_date|dmy }}</span></div>
+    <div><span class="k">{{ t('dpd') }}</span><span class="v">{{ loan.dpd }}</span></div>
+    <div><span class="k">{{ t('status') }}</span><span class="v">{{ loan.status or '—' }}</span></div>
+  </div>
+</div>
+{% endif %}
+<div class="card">
+  <h2>{{ t('dues_title') }}</h2>
+  <table class="dues-table">
+    <tr><td>{{ t('due_emi') }}</td><td>₹{{ '%.2f'|format(dues.due_amount) }}</td></tr>
+    <tr><td>{{ t('penal_charges') }}</td><td>₹{{ '%.2f'|format(dues.lpi_amount) }}</td></tr>
+    <tr><td>{{ t('collection_charges') }}</td><td>₹{{ '%.2f'|format(dues.collection_charges) }}</td></tr>
+    <tr class="total"><td>{{ t('total_payable') }}</td><td>₹{{ '%.2f'|format(dues.computed_total()) }}</td></tr>
+  </table>
+  <p class="muted">{{ t('penal_disclosure') }}</p>
+  <a class="btn btn-primary" href="/loan/{{ dues.finance_id or loan.finance_id }}/pay">{{ t('view_pay') }}</a>
+</div>
+{% endblock %}

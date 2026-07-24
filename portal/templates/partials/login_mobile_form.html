@@ -1,0 +1,10 @@
+{# The normal mobile+OTP entry point — split out of login.html so it can be
+   swapped back in from the PIN-unlock screen's "Use OTP instead" link and
+   from pin_unlock's own fallback branches (missing/revoked/locked device
+   cookie), without duplicating this markup in three places. #}
+<form hx-post="/login/send-otp" hx-target="#login-box" hx-swap="innerHTML">
+  <label for="mobile">{{ t('mobile_number') }}</label>
+  <input type="tel" id="mobile" name="mobile" inputmode="numeric" autocomplete="tel"
+         maxlength="10" pattern="[6-9][0-9]{9}" placeholder="9XXXXXXXXX" required autofocus>
+  <button class="btn btn-primary" type="submit">{{ t('send_otp') }}</button>
+</form>

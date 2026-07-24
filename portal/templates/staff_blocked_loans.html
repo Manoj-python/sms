@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blocked Loans — SMSquare Staff</title>
+  <style>
+    :root {
+      --navy: #12355b; --teal: #0e9494; --ink: #1c2b3a; --muted: #64748b;
+      --border: #e2e8f0; --bg: #f8fafc; --card: #fff;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; color: var(--ink); }
+    header {
+      background: var(--navy); color: #fff; padding: 14px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 6px rgba(0,0,0,.15);
+    }
+    header strong { font-size: 15px; letter-spacing: .2px; }
+    header nav a { color: #cbd5e1; text-decoration: none; font-size: 13px; margin-left: 18px; }
+    header nav a:hover, header nav a.active { color: #fff; }
+    main { padding: 20px 24px 40px; max-width: 1600px; margin: 0 auto; }
+
+    .toolbar {
+      display: flex; gap: 12px; align-items: end; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    }
+    .toolbar form.filters { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; flex: 1; }
+    .toolbar label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .03em; color: var(--muted); margin-bottom: 5px; }
+    .toolbar input {
+      padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;
+      background: #fff; min-width: 140px;
+    }
+    .toolbar input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .btn {
+      padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+      cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--teal); color: #fff; }
+    .btn-primary:hover { background: #0c7f7f; }
+    .btn-danger { background: #b91c1c; color: #fff; padding: 5px 10px; font-size: 12px; }
+    .btn-danger:hover { background: #991414; }
+    .btn-export { background: #1a7f37; color: #fff; }
+    .btn-export:hover { background: #166b2f; }
+
+    .summary-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+    .count { color: var(--muted); font-size: 13px; }
+
+    .table-wrap {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      overflow: auto; box-shadow: 0 1px 3px rgba(0,0,0,.04); max-height: 74vh;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 9px 12px; font-size: 12.5px; border-bottom: 1px solid var(--border); vertical-align: top; white-space: nowrap; }
+    td.wrap { white-space: normal; }
+    th {
+      background: #f1f5f9; color: #334155; font-weight: 700; font-size: 11px;
+      text-transform: uppercase; letter-spacing: .03em; position: sticky; top: 0; z-index: 1;
+    }
+    tbody tr:hover { background: #f8fafc; }
+    tr:last-child td { border-bottom: none; }
+
+    .loan-no { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .muted { color: #94a3b8; }
+    .mono { font-variant-numeric: tabular-nums; }
+
+    .pager { display: flex; gap: 12px; margin-top: 16px; align-items: center; font-size: 13px; }
+    .pager a { color: var(--teal); text-decoration: none; font-weight: 600; }
+    .pager a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Blocked Loans — SMSquare Staff</strong>
+    <nav>
+      <a href="/staff/report">Audit Report</a>
+      <a href="/staff/blocked-loans" class="active">Blocked Loans</a>
+      <a href="/staff/logout">Logout</a>
+    </nav>
+  </header>
+  <main>
+    <div class="toolbar">
+      <form class="filters" method="get">
+        <div>
+          <label for="loan_no">Loan No.</label>
+          <input id="loan_no" name="loan_no" type="text" value="{{ loan_no }}">
+        </div>
+        <div>
+          <label for="name">Customer Name</label>
+          <input id="name" name="name" type="text" value="{{ name }}">
+        </div>
+        <div>
+          <label for="mobile">Mobile (last digits)</label>
+          <input id="mobile" name="mobile" type="text" placeholder="e.g. 3895" value="{{ mobile }}">
+        </div>
+        <div>
+          <label for="branch">Branch</label>
+          <input id="branch" name="branch" type="text" value="{{ branch }}">
+        </div>
+        <div>
+          <label for="centre">Centre</label>
+          <input id="centre" name="centre" type="text" value="{{ centre }}">
+        </div>
+        <div>
+          <label for="rsp">RSP Name</label>
+          <input id="rsp" name="rsp" type="text" value="{{ rsp }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+      <a class="btn btn-primary" href="/staff/blocked-loans/add">+ Block a loan</a>
+      <a class="btn btn-primary" href="/staff/blocked-loans/upload">&#8593; Bulk upload</a>
+      {# No `download` attribute — same expired-session reasoning as the
+         audit report's export button (see staff_report.html). #}
+      <a class="btn btn-export" href="/staff/blocked-loans/export?loan_no={{ loan_no }}&name={{ name }}&mobile={{ mobile }}&branch={{ branch }}&centre={{ centre }}&rsp={{ rsp }}">&#8595; Download Excel</a>
+    </div>
+
+    <div class="summary-bar">
+      <p class="count">{{ total }} blocked loan{{ 's' if total != 1 }} · page {{ page }}</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Blocked On</th>
+            <th>Loan No.</th>
+            <th>Customer Name</th>
+            <th>Mobile</th>
+            <th>Branch</th>
+            <th>Centre</th>
+            <th>RSP Name</th>
+            <th>Reason</th>
+            <th>Blocked By</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td class="mono">{{ row.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
+            <td class="loan-no">{{ row.agreement_no or '—' }}</td>
+            <td>{{ row.customer_name or '—' }}</td>
+            <td class="mono">{{ row.mobile or row.mobile_mask or '—' }}</td>
+            <td>{{ row.branch or '—' }}</td>
+            <td>{{ row.centre or '—' }}</td>
+            <td>{{ row.rsp_name or '—' }}</td>
+            <td class="wrap muted">{{ row.reason or '—' }}</td>
+            <td>{{ row.blocked_by or '—' }}</td>
+            <td>
+              <form method="post" action="/staff/blocked-loans/remove"
+                    onsubmit="return confirm('Unblock this loan?');">
+                <input type="hidden" name="id" value="{{ row.id }}">
+                <button type="submit" class="btn btn-danger">Remove</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="10" class="muted">No blocked loans match this search.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+      {% if has_prev %}<a href="?page={{ page - 1 }}&loan_no={{ loan_no }}&name={{ name }}&mobile={{ mobile }}&branch={{ branch }}&centre={{ centre }}&rsp={{ rsp }}">&larr; Prev</a>{% endif %}
+      <span class="muted">Page {{ page }}</span>
+      {% if has_next %}<a href="?page={{ page + 1 }}&loan_no={{ loan_no }}&name={{ name }}&mobile={{ mobile }}&branch={{ branch }}&centre={{ centre }}&rsp={{ rsp }}">Next &rarr;</a>{% endif %}
+    </div>
+  </main>
+</body>
+</html>

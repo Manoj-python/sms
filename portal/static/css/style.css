@@ -1,0 +1,212 @@
+/* SMSquare portal — mobile-first, navy/teal */
+:root {
+  --navy: #12355b;
+  --navy-dark: #0b2440;
+  --teal: #0e9494;
+  --teal-dark: #0a7070;
+  --teal-light: #e0f4f4;
+  --bg: #f4f7fa;
+  --card: #ffffff;
+  --text: #1c2b3a;
+  --muted: #64748b;
+  --danger: #b3261e;
+  --warn: #8a6d00;
+  --ok: #1a7f37;
+  --radius: 12px;
+  --shadow: 0 1px 4px rgba(18, 53, 91, .12);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, "Noto Sans Telugu", sans-serif;
+  font-size: 16px; line-height: 1.5;
+  display: flex; flex-direction: column; min-height: 100vh;
+}
+.container { width: 100%; max-width: 720px; margin: 0 auto; padding: 16px; flex: 1; }
+
+/* header */
+.topbar { background: var(--navy); color: #fff; border-bottom: 3px solid var(--teal); }
+.topbar-inner {
+  max-width: 720px; margin: 0 auto; padding: 10px 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+.brand-logo {
+  width: 34px; height: 34px; border-radius: 8px; object-fit: cover;
+  background: #fff; flex-shrink: 0;
+}
+.brand-text { font-weight: 700; font-size: 15px; line-height: 1.15; display: flex; flex-direction: column; }
+.brand-text small { font-weight: 400; font-size: 11px; opacity: .8; }
+.topnav { display: flex; align-items: center; gap: 10px; }
+.lang-toggle a {
+  color: #cfe3f5; text-decoration: none; font-size: 13px; padding: 2px 7px; border-radius: 6px;
+}
+.lang-toggle a.active { background: var(--teal); color: #fff; font-weight: 700; }
+.user-chip {
+  background: rgba(255,255,255,.12); border-radius: 20px; padding: 3px 10px; font-size: 12px;
+}
+
+/* On narrow phones the tagline + mobile-number badge + Logout button
+   competing for one row wrapped the brand text across 3-4 lines, making the
+   header tall and cramped. The tagline is decorative — drop it below the
+   width where that starts happening. */
+@media (max-width: 480px) {
+  .brand-text small { display: none; }
+  .user-chip { display: none; }
+}
+
+/* cards & layout */
+.card {
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 20px; margin: 14px 0;
+}
+h1, h2 { color: var(--navy); margin: 0 0 12px; }
+h1 { font-size: 22px; } h2 { font-size: 18px; }
+.muted { color: var(--muted); font-size: 14px; }
+
+/* profile */
+.profile-header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+.profile-header h1 { margin: 0; }
+.profile-pic {
+  width: 56px; height: 56px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+  border: 2px solid var(--teal-light);
+}
+.profile-pic-lg { width: 84px; height: 84px; }
+
+/* forms */
+label { display: block; font-weight: 600; font-size: 14px; margin: 12px 0 4px; }
+input[type=text], input[type=tel], input[type=date], input[type=number] {
+  width: 100%; padding: 12px; font-size: 16px;
+  border: 1.5px solid #cbd5e1; border-radius: 10px; background: #fff;
+}
+input:focus { outline: 2px solid var(--teal); border-color: var(--teal); }
+.otp-input { letter-spacing: .5em; text-align: center; font-size: 22px; font-weight: 700; }
+
+.btn {
+  display: inline-block; border: 0; cursor: pointer; text-decoration: none; text-align: center;
+  padding: 12px 20px; border-radius: 10px; font-size: 16px; font-weight: 700;
+}
+.btn-primary { background: var(--teal); color: #fff; width: 100%; margin-top: 14px; }
+.btn-primary:hover { background: var(--teal-dark); }
+.btn-navy { background: var(--navy); color: #fff; }
+/* PhonePe's own brand purple — visually distinct from the AllCloud teal
+   "Pay Now" button above it, so the two gateway choices read as separate
+   options rather than a primary/disabled pair. */
+.btn-secondary { background: #5f259f; color: #fff; width: 100%; }
+.btn-secondary:hover { background: #4a1d7d; }
+.btn-ghost { background: transparent; color: #cfe3f5; border: 1px solid rgba(255,255,255,.35); padding: 6px 12px; font-size: 13px; }
+.btn-link { background: none; color: var(--teal-dark); text-decoration: underline; padding: 8px 0; font-size: 14px; }
+
+/* alerts */
+.alert { border-radius: 10px; padding: 12px 14px; margin: 10px 0; font-size: 14px; }
+.alert-error { background: #fdecea; color: var(--danger); border: 1px solid #f5c6c2; }
+.alert-warn  { background: #fdf6e3; color: var(--warn); border: 1px solid #efe0a9; }
+.alert-ok    { background: #e6f4ea; color: var(--ok); border: 1px solid #b7e1c1; }
+
+/* loan cards */
+.loan-card { border-left: 5px solid var(--teal); }
+.loan-card.overdue { border-left-color: var(--danger); }
+.loan-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.badge { border-radius: 20px; padding: 2px 12px; font-size: 12px; font-weight: 700; }
+.badge-ok { background: var(--teal-light); color: var(--teal-dark); }
+.badge-overdue { background: #fdecea; color: var(--danger); }
+.kv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin: 12px 0; }
+.kv div { font-size: 14px; }
+.kv .k { color: var(--muted); font-size: 12px; display: block; }
+.kv .v { font-weight: 700; }
+
+/* document action chips (statement/foreclosure/history downloads on the pay
+   page) — plain underlined text links crammed on one line were hard to tell
+   apart and a poor tap target on mobile; pill chips give each its own
+   tappable area and wrap cleanly on narrow screens. */
+.doc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.doc-link {
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  background: var(--teal-light); color: var(--teal-dark);
+  border-radius: 20px; padding: 8px 14px; font-size: 13.5px; font-weight: 600;
+  text-decoration: none; transition: background 120ms ease;
+}
+.doc-link:hover { background: #cdeaea; }
+.doc-icon { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* document view pages (statement/foreclosure/receipt HTML views) */
+.doc-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 4px;
+}
+.doc-head h1 { margin-bottom: 2px; }
+/* the repayment-schedule table has 6 columns — too wide for a narrow phone
+   to ever fit without either scrolling or unreadably tiny text; scrolling
+   the table itself (not the whole page) keeps every other section usable
+   without a horizontal page scrollbar. */
+.table-scroll { overflow-x: auto; margin: 10px 0; }
+.table-scroll .dues-table { margin: 0; min-width: 480px; }
+.sched-table td, .sched-table th { white-space: nowrap; }
+
+/* dues table */
+.dues-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+.dues-table td { padding: 9px 4px; border-bottom: 1px solid #e8eef4; font-size: 15px; }
+.dues-table td:last-child { text-align: right; font-weight: 700; }
+.dues-table tr.total td { border-top: 2px solid var(--navy); border-bottom: 0; font-size: 17px; color: var(--navy); font-weight: 800; }
+/* .dues-table's last-column bold+right-align assumes a 2-column
+   label/AMOUNT layout (every other user of this class) — the Guarantor(s)
+   table is a genuine multi-column list (name, relation), not a label/value
+   pair, so that assumption made "Guarantor" render bold and shoved to the
+   right edge instead of reading as a normal table column. .plain resets
+   just that last-child rule back to a regular cell. */
+.dues-table.plain td:last-child { text-align: left; font-weight: 400; }
+.dues-table.plain th { text-align: left; }
+
+/* pay options */
+.pay-option { display: flex; align-items: center; gap: 10px; padding: 12px; margin: 8px 0;
+  border: 1.5px solid #cbd5e1; border-radius: 10px; cursor: pointer; }
+.pay-option.selected { border-color: var(--teal); background: var(--teal-light); }
+.pay-option input { accent-color: var(--teal); width: 18px; height: 18px; }
+.part-amount-field { display: none; }
+.part-amount-field.show { display: block; }
+
+/* QR block */
+.qr-box { text-align: center; padding: 18px; }
+.amount-big { font-size: 26px; font-weight: 800; color: var(--navy); }
+
+/* slow-network loading feedback (htmx hx-indicator). opacity alone isn't
+   enough to hide it — an opacity:0 element still captures clicks, and this
+   bar sits fixed across the full page width right over the header, so
+   every click there (including Logout) was silently swallowed even while
+   invisible. pointer-events keeps it click-through except while an htmx
+   request is actually in flight. */
+.htmx-indicator { opacity: 0; pointer-events: none; transition: opacity 150ms ease-in; }
+.htmx-indicator.htmx-request { opacity: 1; pointer-events: auto; }
+.global-loading {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: var(--teal); color: #fff; text-align: center;
+  font-size: 13px; font-weight: 700; padding: 6px 10px;
+}
+
+/* PWA install banner — hidden by default, shown via JS only when the
+   browser actually fires beforeinstallprompt (see app.js) */
+.install-banner {
+  display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000;
+  background: var(--navy); color: #fff; padding: 12px 16px;
+  align-items: center; gap: 12px; box-shadow: 0 -2px 8px rgba(0,0,0,.15);
+}
+.install-banner.show { display: flex; }
+.install-banner p { margin: 0; flex: 1; font-size: 13.5px; }
+.install-banner .btn { width: auto; margin: 0; padding: 8px 16px; font-size: 13.5px; }
+
+/* footer */
+.footer { background: var(--navy-dark); color: #b9c9db; font-size: 12.5px; margin-top: 30px; }
+.footer .container { padding: 16px; flex: none; }
+.footer a { color: #7fd4d4; }
+.footer .fpc { opacity: .8; }
+.footer .legal-name { font-weight: 700; color: #fff; margin-bottom: 2px; }
+.footer .company-address { opacity: .8; margin-bottom: 10px; }
+.whatsapp-link { display: inline-flex; align-items: center; gap: 4px; }
+.wa-icon { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* desktop */
+@media (min-width: 700px) {
+  .kv { grid-template-columns: repeat(4, 1fr); }
+  .btn-primary { width: auto; min-width: 220px; }
+}

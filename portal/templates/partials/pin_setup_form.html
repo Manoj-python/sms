@@ -1,0 +1,19 @@
+{# Reused for: the initial "set up a PIN" prompt (GET), a validation-error
+   re-render (POST with a bad PIN), the success confirmation (POST ok), and
+   pin_disable's response (falls back to this same empty "set up" state —
+   correct, since disabling always leaves no PIN configured). #}
+{% if success %}
+<div class="alert alert-ok">{{ t('pin_enabled_success') }}</div>
+{% else %}
+{% if error_key %}<div class="alert alert-error">{{ t(error_key) }}</div>{% endif %}
+<p class="muted">{{ t('set_pin_description') }}</p>
+<form hx-post="/profile/pin/setup" hx-target="#pin-box" hx-swap="innerHTML">
+  <label for="pin">{{ t('new_pin') }}</label>
+  <input type="text" id="pin" name="pin" inputmode="numeric" autocomplete="off"
+         maxlength="6" pattern="[0-9]{6}" placeholder="••••••" required>
+  <label for="pin_confirm">{{ t('confirm_pin') }}</label>
+  <input type="text" id="pin_confirm" name="pin_confirm" inputmode="numeric" autocomplete="off"
+         maxlength="6" pattern="[0-9]{6}" placeholder="••••••" required>
+  <button class="btn btn-primary" type="submit">{{ t('set_pin_button') }}</button>
+</form>
+{% endif %}

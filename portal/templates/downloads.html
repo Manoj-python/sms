@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="btn-link" href="/loan/{{ finance_id }}/pay">← {{ t('back_dashboard') }}</a>
+
+<div class="card">
+  <h1>{{ t('downloads_title') }}</h1>
+  {% if loan %}<p class="muted">{{ loan.agreement_no }}</p>{% endif %}
+  <div class="doc-actions">
+    <a class="doc-link" href="/loan/{{ finance_id }}/statement/view">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+      {{ t('view_statement') }}
+    </a>
+    <a class="doc-link" href="/loan/{{ finance_id }}/statement.pdf">
+      <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      {{ t('download_statement') }}
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>{{ t('payment_history') }}</h2>
+  {% if dates %}
+  <table class="dues-table">
+    <tr><th>{{ t('payment_date') }}</th><th>{{ t('amount') }}</th><th></th></tr>
+    {% for d in dates %}
+    <tr>
+      <td>{{ d.date }}</td>
+      <td>₹{{ '%.2f'|format(d.amount) }}</td>
+      <td>
+        <a class="doc-link" href="/loan/{{ finance_id }}/receipt/{{ d.date }}/view">
+          <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          {{ t('view_receipt') }}
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="muted">{{ t('no_receipts_yet') }}</p>
+  {% endif %}
+</div>
+{% endblock %}

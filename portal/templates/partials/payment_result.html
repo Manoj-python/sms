@@ -1,0 +1,31 @@
+{% if qr and qr.pay_url %}
+  <div class="qr-box">
+    <p class="amount-big">₹{{ '%.2f'|format(txn.total_amount) }}</p>
+    <a class="btn btn-navy" href="{{ qr.pay_url }}" target="_blank" rel="noopener">{{ t('pay_now') }}</a>
+  </div>
+{% elif phonepe_redirect_url is defined and phonepe_redirect_url %}
+  <div class="qr-box">
+    <p class="amount-big">₹{{ '%.2f'|format(txn.total_amount) }}</p>
+    <a class="btn btn-navy" href="{{ phonepe_redirect_url }}" rel="noopener">{{ t('pay_now') }}</a>
+  </div>
+{% endif %}
+
+{% if txn.status == 'RECONCILED' %}
+  {# Ops has confirmed this payment in AllCloud — only now is the break-up
+     and receipt shown; there's no real-time gateway callback to verify
+     completion any earlier than that. #}
+  <div class="alert alert-ok"><strong>{{ t('payment_success') }}</strong></div>
+  <table class="dues-table">
+    <tr><td>{{ t('due_emi') }}</td><td>₹{{ '%.2f'|format(txn.amount) }}</td></tr>
+    <tr><td>{{ t('penal_charges') }}</td><td>₹{{ '%.2f'|format(txn.lpi_amount) }}</td></tr>
+    <tr><td>{{ t('collection_charges') }}</td><td>₹{{ '%.2f'|format(txn.collection_charges) }}</td></tr>
+    <tr class="total"><td>{{ t('total_payable') }}</td><td>₹{{ '%.2f'|format(txn.total_amount) }}</td></tr>
+  </table>
+  <a class="btn btn-primary" href="/payment/{{ txn.id }}/receipt/view">{{ t('view_receipt') }}</a>
+  <p style="text-align:center;margin-top:6px">
+    <a class="btn-link" href="/payment/{{ txn.id }}/receipt.pdf">{{ t('download_receipt') }}</a>
+  </p>
+{% else %}
+  <div class="alert alert-warn">{{ t('account_updating') }}</div>
+{% endif %}
+<p style="margin-top:10px"><a class="btn-link" href="/dashboard">{{ t('back_dashboard') }}</a></p>

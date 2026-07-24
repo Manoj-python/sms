@@ -1,0 +1,21 @@
+{% if locked %}
+<div class="alert alert-error">{{ t('pin_locked') }}</div>
+<p style="margin-top:12px"><a class="btn-link" href="/login?otp=1">{{ t('use_otp_instead') }}</a></p>
+{% else %}
+{% if error_key %}
+<div class="alert alert-error">
+  {% if error_key == 'pin_wrong' and remaining is defined %}
+    {{ t(error_key).format(remaining=remaining) }}
+  {% else %}
+    {{ t(error_key) }}
+  {% endif %}
+</div>
+{% endif %}
+<p>{{ t('enter_pin') }} <strong>{{ mobile_mask }}</strong></p>
+<form hx-post="/login/pin" hx-target="#login-box" hx-swap="innerHTML">
+  <input type="text" class="otp-input" name="pin" inputmode="numeric" autocomplete="off"
+         maxlength="6" pattern="[0-9]{6}" placeholder="••••••" required autofocus>
+  <button class="btn btn-primary" type="submit">{{ t('unlock') }}</button>
+</form>
+<p style="margin-top:12px"><a class="btn-link" href="/login?otp=1">{{ t('use_otp_instead') }}</a></p>
+{% endif %}

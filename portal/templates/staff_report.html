@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audit Report — SMSquare Staff</title>
+  <style>
+    :root {
+      --navy: #12355b; --teal: #0e9494; --ink: #1c2b3a; --muted: #64748b;
+      --border: #e2e8f0; --bg: #f8fafc; --card: #fff;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; color: var(--ink); }
+    header {
+      background: var(--navy); color: #fff; padding: 14px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 6px rgba(0,0,0,.15);
+    }
+    header strong { font-size: 15px; letter-spacing: .2px; }
+    header a { color: #cbd5e1; text-decoration: none; font-size: 13px; }
+    header a:hover { color: #fff; }
+    main { padding: 20px 24px 40px; max-width: 1600px; margin: 0 auto; }
+
+    .toolbar {
+      display: flex; gap: 12px; align-items: end; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    }
+    .toolbar form.filters { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; flex: 1; }
+    .toolbar label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .03em; color: var(--muted); margin-bottom: 5px; }
+    .toolbar input, .toolbar select {
+      padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;
+      background: #fff; min-width: 160px;
+    }
+    .toolbar input:focus, .toolbar select:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .btn {
+      padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+      cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--teal); color: #fff; }
+    .btn-primary:hover { background: #0c7f7f; }
+    .btn-export { background: #1a7f37; color: #fff; }
+    .btn-export:hover { background: #166b2f; }
+
+    .summary-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+    .count { color: var(--muted); font-size: 13px; }
+
+    .table-wrap {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      overflow: auto; box-shadow: 0 1px 3px rgba(0,0,0,.04); max-height: 74vh;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 9px 12px; font-size: 12.5px; border-bottom: 1px solid var(--border); vertical-align: top; white-space: nowrap; }
+    td.wrap { white-space: normal; }
+    th {
+      background: #f1f5f9; color: #334155; font-weight: 700; font-size: 11px;
+      text-transform: uppercase; letter-spacing: .03em; position: sticky; top: 0; z-index: 1;
+    }
+    tbody tr:hover { background: #f8fafc; }
+    tr:last-child td { border-bottom: none; }
+
+    .action { font-weight: 600; padding: 2px 8px; border-radius: 999px; font-size: 11px; display: inline-block; }
+    .action-login_success, .action-login_success_agreement { color: #1a7f37; background: #e6f4ea; }
+    .action-login_unknown_mobile, .action-agreement_login_failed, .action-idor_blocked { color: #b91c1c; background: #fdecec; }
+    .action-qr_generated { color: #b45309; background: #fef3e2; }
+    .action-statement_downloaded, .action-installment_receipt_downloaded,
+    .action-charge_receipt_downloaded, .action-receipt_downloaded,
+    .action-foreclosure_statement_downloaded { color: #0e5c9e; background: #e8f1fb; }
+    .action-logout { color: #64748b; background: #f1f5f9; }
+
+    .loan-no { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .emi { font-variant-numeric: tabular-nums; }
+    .emi.overdue { color: #b91c1c; font-weight: 700; }
+    .muted { color: #94a3b8; }
+    .mono { font-variant-numeric: tabular-nums; }
+
+    .pager { display: flex; gap: 12px; margin-top: 16px; align-items: center; font-size: 13px; }
+    .pager a { color: var(--teal); text-decoration: none; font-weight: 600; }
+    .pager a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Audit Report — SMSquare Staff</strong>
+    <nav>
+      <a href="/staff/report" style="margin-right:18px">Audit Report</a>
+      <a href="/staff/blocked-loans" style="margin-right:18px">Blocked Loans</a>
+      <a href="/staff/logout">Logout</a>
+    </nav>
+  </header>
+  <main>
+    <div class="toolbar">
+      <form class="filters" method="get">
+        <div>
+          <label for="action">Action</label>
+          <select id="action" name="action">
+            <option value="">All actions</option>
+            {% for a in actions %}
+              <option value="{{ a }}" {{ 'selected' if action_filter == a }}>{{ a }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="mobile">Mobile search (last digits)</label>
+          <input id="mobile" name="mobile" type="text" placeholder="e.g. 3895" value="{{ mobile_filter }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </form>
+      {# No `download` attribute: that forces the browser to save WHATEVER
+         comes back as a file, even if the staff session has expired and
+         the server 302-redirects to the login page instead of returning
+         the .xlsx — producing a broken "export.htm" download rather than
+         a normal redirect back to re-login. The server's own
+         Content-Disposition: attachment header (see staff.py's export
+         view) is what triggers the real download when it actually
+         succeeds; nothing extra is needed here. #}
+      <a class="btn btn-export" href="/staff/report/export?action={{ action_filter }}&mobile={{ mobile_filter }}">&#8595; Export to Excel</a>
+    </div>
+
+    <div class="summary-bar">
+      <p class="count">{{ total }} event{{ 's' if total != 1 }} · page {{ page }}</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date / Time (IST)</th>
+            <th>Action</th>
+            <th>Mobile</th>
+            <th>Loan No.</th>
+            <th>EMI Due</th>
+            <th>Amount</th>
+            <th>Detail</th>
+            <th>IP</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td class="mono">{{ row.created_at_ist }}</td>
+            <td><span class="action action-{{ row.action }}">{{ row.action }}</span></td>
+            <td class="mono">{{ row.mobile or '—' }}</td>
+            <td class="loan-no">{{ row.loan_no or '—' }}</td>
+            <td class="emi {{ 'overdue' if row.emi_due_count and row.emi_due_count != '0' }}">
+              {{ row.emi_due_count or '—' }}
+            </td>
+            <td class="mono">{{ row.amount or '—' }}</td>
+            <td class="wrap muted">{{ row.detail or '—' }}</td>
+            <td class="mono">{{ row.ip or '—' }}</td>
+            <td>
+              {% if row.maps_url %}
+                <a href="{{ row.maps_url }}" target="_blank" rel="noopener">{{ row.location or 'Map' }}</a>
+              {% else %}
+                {{ row.location or '—' }}
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="9" class="muted">No events match this filter.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+      {% if has_prev %}<a href="?page={{ page - 1 }}&action={{ action_filter }}&mobile={{ mobile_filter }}">&larr; Prev</a>{% endif %}
+      <span class="muted">Page {{ page }}</span>
+      {% if has_next %}<a href="?page={{ page + 1 }}&action={{ action_filter }}&mobile={{ mobile_filter }}">Next &rarr;</a>{% endif %}
+    </div>
+  </main>
+</body>
+</html>
